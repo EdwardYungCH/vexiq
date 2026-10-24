@@ -135,7 +135,7 @@
       var hi = p.new ? ' stroke="' + C.red + '" stroke-width="3"' : ' stroke="' + C.line + '" stroke-width="1.2"';
       s += '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="6" fill="' + (p.color || (p.new ? C.body : '#b9c7dc')) + '"' + hi + ' opacity="' + (p.new ? 1 : .85) + '"/>';
       if (p.hole !== false && p.w >= 1 && p.h >= 1 && (p.w <= 2 || p.h <= 2)) s += holes(x, y, p.w, p.h, 5);
-      if (p.label) s += label(x + w / 2, y + h / 2 + 4, p.label, 11);
+      if (p.label) s += label(x + w / 2, y + h / 2 + 4, p.label, 11).replace('fill="' + C.line + '"', 'fill="' + (p.color === '#2b2f36' ? '#fff' : C.line) + '"');
     });
     (opts.circles || []).forEach(function (c) {
       var x = pad + c.x * U, y = pad + c.y * U;
@@ -164,5 +164,88 @@
       '<rect x="150" y="100" width="90" height="30" rx="4" fill="' + C.body + '"/><rect x="200" y="30" width="30" height="70" fill="' + C.dark + '"/><circle cx="205" cy="70" r="5" fill="' + C.red + '"/>' + label(195, 150, '重物放高放前：轉彎易翻', 11) + label(130, 20, '紅點 = 重心', 11));
   }
 
-  window.PSVG = { beam: beam, plate: plate, pin: pin, pinJoin: pinJoin, corner: corner, shaft: shaft, bushing: bushing, spacer: spacer, gearSet: gearSet, gearMesh: gearMesh, wheel: wheel, rubber: rubber, pinRemover: pinRemover, brain: brain, motor: motor, battery: battery, controller: controller, sensor: sensor, cable: cable, step: step, fourBar: fourBar, cog: cog };
+
+  // 場地俯視（簡化，與模擬器同比例）
+  function field(opts) {
+    opts = opts || {};
+    var k = 3, W = 97 * k, H = 73 * k, p = 14;
+    function X(x) { return p + x * k; } function Y(y) { return p + (73 - y) * k; }
+    function r(x1, y1, x2, y2, f, st) { return '<rect x="' + X(x1) + '" y="' + Y(y2) + '" width="' + ((x2 - x1) * k) + '" height="' + ((y2 - y1) * k) + '" fill="' + f + '" stroke="' + (st || C.line) + '"/>'; }
+    var s = '<rect x="' + p + '" y="' + p + '" width="' + W + '" height="' + H + '" fill="#d9dde3" stroke="' + C.line + '" stroke-width="2"/>';
+    s += r(90, 18.5, 97, 54.5, 'rgba(215,38,61,.3)', C.red) + r(0, 18.5, 7, 54.5, 'rgba(42,111,219,.3)', C.blue);
+    s += r(0, 0, 7, 18.5, 'rgba(215,38,61,.12)', C.red) + r(90, 54.5, 97, 73, 'rgba(42,111,219,.12)', C.blue);
+    [[19.25, .35], [14.5, .55], [8.5, .8]].forEach(function (l) { s += r(97 - l[0], 0, 97, l[0], 'rgba(215,38,61,' + l[1] + ')', '#fff') + r(0, 73 - l[0], l[0], 73, 'rgba(42,111,219,' + l[1] + ')', '#fff'); });
+    s += r(60, 0.5, 61, 26.5, C.yellow) + r(36, 46.5, 37, 72.5, C.yellow) + r(60, 26.5, 61, 39, '#8e949e') + r(36, 34, 37, 46.5, '#8e949e');
+    [[60.5, 42.5], [36.5, 30.5]].forEach(function (c) { s += '<circle cx="' + X(c[0]) + '" cy="' + Y(c[1]) + '" r="' + 3.5 * k + '" fill="' + C.yellow + '" stroke="' + C.line + '"/>' + label(X(c[0]), Y(c[1]) + 4, 'L4', 10); });
+    [[60.5, 30.5], [36.5, 42.5]].forEach(function (c) { s += '<circle cx="' + X(c[0]) + '" cy="' + Y(c[1]) + '" r="' + 2 * k + '" fill="#555"/>'; });
+    if (opts.labels !== false) {
+      s += label(X(93.5), Y(36), '紅', 11) + label(X(3.5), Y(36), '藍', 11) + label(X(3.5), Y(9), '紅入袋', 9) + label(X(93.5), Y(63), '藍入袋', 9) + label(X(88), Y(8), 'L1-3', 10) + label(X(9), Y(65), 'L1-3', 10) + label(X(48.5), Y(8), '起點', 10) + label(X(48.5), Y(13), '橫樑', 9).replace('x="' + X(48.5) + '"', 'x="' + X(66) + '"');
+    }
+    if (opts.bags) {
+      var B = { blue: [[84.5, 48.5], [84.5, 36.5], [84.5, 24.5], [78.5, 66.5], [66.5, 66.5], [66.5, 36.5], [66.5, 6.5], [48.5, 30.5]], red: [[48.5, 42.5], [30.5, 66.5], [30.5, 36.5], [30.5, 6.5], [18.5, 6.5], [12.5, 48.5], [12.5, 36.5], [12.5, 24.5]], yellow: [[42.5, 30.5], [42.5, 42.5], [54.5, 30.5], [54.5, 42.5]] };
+      Object.keys(B).forEach(function (c) { B[c].forEach(function (b) { s += '<rect x="' + (X(b[0]) - 2 * k) + '" y="' + (Y(b[1]) - 1.5 * k) + '" width="' + 4 * k + '" height="' + 3 * k + '" fill="' + C[c] + '" stroke="#333"/>'; }); });
+    }
+    if (opts.route) s += '<path d="' + opts.route.map(function (pt, i) { return (i ? 'L' : 'M') + X(pt[0]) + ' ' + Y(pt[1]); }).join(' ') + '" fill="none" stroke="' + C.line + '" stroke-width="3" stroke-dasharray="6 4"/>';
+    if (opts.note) s += label(p + W / 2, H + p + 18, opts.note, 11);
+    return svg(W + p * 2, H + p * 2 + (opts.note ? 14 : 0), s);
+  }
+  // 金字塔側視（分數）
+  function pyramidSide() {
+    var s = '';
+    [[20, 2.5, 'L1 3分'], [14.5, 5, 'L2 6分'], [8.5, 8, 'L3 12分']].forEach(function (l, i) {
+      var w = l[0] * 10, h = l[1] * 10; s += '<rect x="' + (20) + '" y="' + (150 - h) + '" width="' + w + '" height="' + (h - (i ? [2.5, 5][i - 1] * 10 : 0)) + '" fill="rgba(215,38,61,' + (.35 + i * .2) + ')" stroke="#fff"/>' + label(20 + w - 22, 150 - h + 14, l[2], 10);
+    });
+    s += '<rect x="250" y="150" width="60" height="4" fill="#999"/>' + label(280, 170, 'Floor 1分', 10);
+    s += '<line x1="330" y1="150" x2="330" y2="-90" stroke="#555" stroke-width="3"/><ellipse cx="330" cy="-90" rx="20" ry="8" fill="' + C.yellow + '" stroke="' + C.line + '"/>' + label(330, -100, 'L4 16分 只收黃', 10);
+    return svg(380, 180, '<g transform="translate(0 100)">' + s + '</g>' + label(190, 15, '愈高分愈多', 12), '0 -10 380 190');
+  }
+  function timeline() {
+    var s = '<rect x="20" y="40" width="300" height="20" fill="#e6e9ef" stroke="' + C.line + '"/>';
+    s += '<rect x="' + (20 + 300 * 25 / 60) + '" y="40" width="' + (300 * 10 / 60) + '" height="20" fill="' + C.yellow + '"/>';
+    s += label(20, 80, '60', 11) + label(320, 80, '0', 11) + label(20 + 300 * 25 / 60, 30, '35', 11) + label(20 + 300 * 35 / 60, 30, '25', 11) + label(170, 100, '黃色時段換手（餘 35→25 秒）', 11);
+    return svg(340, 110, s);
+  }
+  // 機構示意
+  function claw() {
+    return svg(220, 150, '<rect x="90" y="20" width="40" height="30" fill="#2b2f36"/><circle cx="110" cy="35" r="5" fill="' + C.metal + '"/>' +
+      '<g><path d="M110 50 L60 110" stroke="' + C.green + '" stroke-width="8" stroke-linecap="round"/><animateTransform attributeName="transform" type="rotate" values="0 110 50;20 110 50;0 110 50" dur="2s" repeatCount="indefinite"/></g>' +
+      '<g><path d="M110 50 L160 110" stroke="' + C.green + '" stroke-width="8" stroke-linecap="round"/><animateTransform attributeName="transform" type="rotate" values="0 110 50;-20 110 50;0 110 50" dur="2s" repeatCount="indefinite"/></g>' +
+      '<rect x="90" y="95" width="40" height="30" fill="' + C.yellow + '" stroke="#333"/>' + label(110, 145, '夾爪：一個摩打開合', 11));
+  }
+  function roller() {
+    return svg(220, 150, '<rect x="20" y="90" width="120" height="30" rx="4" fill="' + C.body + '"/>' +
+      '<g><circle cx="150" cy="70" r="22" fill="#444"/><line x1="150" y1="48" x2="150" y2="92" stroke="#888" stroke-width="3"/><line x1="128" y1="70" x2="172" y2="70" stroke="#888" stroke-width="3"/><animateTransform attributeName="transform" type="rotate" values="0 150 70;-360 150 70" dur="1.5s" repeatCount="indefinite"/></g>' +
+      '<rect x="175" y="100" width="36" height="22" fill="' + C.yellow + '" stroke="#333"><animate attributeName="x" values="185;120;185" dur="1.5s" repeatCount="indefinite"/></rect>' + label(110, 145, '滾筒：轉動把袋捲入', 11));
+  }
+  function scissor() {
+    return svg(220, 170, '<rect x="60" y="130" width="100" height="20" rx="4" fill="' + C.body + '"/>' +
+      '<g><line x1="70" y1="130" x2="150" y2="70" stroke="' + C.green + '" stroke-width="6"/><line x1="150" y1="130" x2="70" y2="70" stroke="' + C.green + '" stroke-width="6"/><line x1="70" y1="70" x2="150" y2="10" stroke="' + C.green + '" stroke-width="6"/><line x1="150" y1="70" x2="70" y2="10" stroke="' + C.green + '" stroke-width="6"/><rect x="80" y="0" width="60" height="12" fill="' + C.yellow + '"/>' +
+      '<animateTransform attributeName="transform" type="scale" values="1 1;1 0.6;1 1" additive="sum" dur="3s" repeatCount="indefinite" /></g>' + label(110, 165, '剪叉：垂直升，較重', 11));
+  }
+  function elevator() {
+    return svg(220, 170, '<rect x="60" y="130" width="100" height="20" rx="4" fill="' + C.body + '"/><rect x="100" y="10" width="20" height="120" fill="' + C.metalD + '"/>' +
+      '<rect x="80" y="100" width="60" height="14" fill="' + C.yellow + '"><animate attributeName="y" values="100;20;100" dur="3s" repeatCount="indefinite"/></rect>' + label(110, 165, '直升導軌：準，要齒條或鏈', 11));
+  }
+  function catapult() {
+    return svg(240, 170, '<rect x="20" y="130" width="120" height="20" rx="4" fill="' + C.body + '"/>' +
+      '<g><line x1="60" y1="130" x2="150" y2="110" stroke="' + C.green + '" stroke-width="8" stroke-linecap="round"/><rect x="140" y="95" width="24" height="16" fill="' + C.yellow + '"/><animateTransform attributeName="transform" type="rotate" values="0 60 130;-50 60 130;-50 60 130;0 60 130" dur="2.5s" repeatCount="indefinite"/></g>' + label(120, 165, '投擲：橡筋儲力，黃袋上 L4', 11));
+  }
+  function lowVsNarrow() {
+    return svg(300, 150, '<line x1="20" y1="60" x2="140" y2="60" stroke="' + C.yellow + '" stroke-width="6"/><rect x="40" y="70" width="80" height="40" fill="' + C.body + '"/>' + label(80, 130, '矮機：高 < 橫樑，鑽底', 11) +
+      '<rect x="180" y="30" width="12" height="90" fill="#555"/><rect x="270" y="30" width="12" height="90" fill="#555"/><rect x="205" y="40" width="50" height="70" fill="' + C.body + '"/>' + label(230, 130, '窄機：闊 < 柱距，穿過', 11));
+  }
+  function alignBar() {
+    return svg(240, 130, '<rect x="20" y="40" width="100" height="50" fill="' + C.body + '"/><rect x="120" y="55" width="40" height="8" fill="' + C.green + '"/><rect x="120" y="75" width="40" height="8" fill="' + C.green + '"/><rect x="165" y="20" width="12" height="90" fill="#888"/>' + label(120, 120, '對位杆：頂住 goal 邊就對準', 11));
+  }
+  function wiring() {
+    var s = brain().replace(/<\/svg>$/, '');
+    s += '<path d="M44 170 q-30 40 -20 60" fill="none" stroke="#333" stroke-width="3"/><path d="M60 170 q10 40 40 60" fill="none" stroke="#333" stroke-width="3"/>' + label(30, 240, '左摩打 Port 1', 10) + label(110, 240, '右摩打 Port 6', 10) + '</svg>';
+    return s.replace('viewBox="0 0 240 185"', 'viewBox="0 0 240 250"');
+  }
+  window.PSVG = window.PSVG || {};
+  window.PSVG.field = field; window.PSVG.pyramidSide = pyramidSide; window.PSVG.timeline = timeline; window.PSVG.claw = claw; window.PSVG.roller = roller; window.PSVG.scissor = scissor; window.PSVG.elevator = elevator; window.PSVG.catapult = catapult; window.PSVG.lowVsNarrow = lowVsNarrow; window.PSVG.alignBar = alignBar; window.PSVG.wiring = wiring;
+
+  window.PSVG = window.PSVG || {};
+  var _P = { beam: beam, plate: plate, pin: pin, pinJoin: pinJoin, corner: corner, shaft: shaft, bushing: bushing, spacer: spacer, gearSet: gearSet, gearMesh: gearMesh, wheel: wheel, rubber: rubber, pinRemover: pinRemover, brain: brain, motor: motor, battery: battery, controller: controller, sensor: sensor, cable: cable, step: step, fourBar: fourBar, cog: cog };
+  Object.keys(_P).forEach(function (k) { window.PSVG[k] = _P[k]; });
 })();

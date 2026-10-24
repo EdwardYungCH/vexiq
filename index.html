@@ -86,7 +86,7 @@
     var v = VQ.store.get(pf + 'verified', false);
     var pct = Math.round(n / g.sections.length * 100);
     return '<a class="lesson-link' + (v ? ' done' : '') + '" href="guide.html?id=' + g.id + '"><div class="n">G' + (i + 1) + '</div><div class="t">' + VQ.esc(g.title) + '<small>' + VQ.esc(g.time) + '</small></div><div class="pct">' + (v ? '已驗收' : pct + '%') + '</div></a>';
-  }).join('') + (GUIDE.length < 12 ? '<p class="small muted">其餘各節製作中（共 12 節）。</p>' : '');
+  }).join('') + '';
   var overall = count ? Math.round(total / count) : 0;
   document.getElementById('overall').style.width = overall + '%';
   document.getElementById('overall-text').textContent = overall === 0 ? '尚未開始' : '已完成 ' + overall + '%';
