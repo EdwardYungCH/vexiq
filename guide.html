@@ -81,18 +81,11 @@ details summary { cursor: pointer; font-weight: 600; }
 
   html += '<section class="card"><h2>卡住了？</h2><div class="kv">' + G.stuck.map(function (k) { return '<b>' + esc(k[0]) + '</b><span>' + esc(k[1]) + '</span>'; }).join('') + '</div><p class="small muted" style="margin-top:8px">仍然卡住：問舊生；舊生不在就拍相貼到隊群組，繼續做下一步。</p></section>';
 
-  // 自測
-  var quizPassed = S.get(pfx + 'quiz', 0) >= 80;
-  html += '<section class="card" id="quiz"><h2>自測（' + G.quiz.length + ' 題，答對 80% 才過）' + (quizPassed ? ' <span class="badge">已通過 ' + S.get(pfx + 'quiz', 0) + '%</span>' : '') + '</h2>';
-  G.quiz.forEach(function (q, qi) {
-    html += '<div class="quiz-q" data-q="' + qi + '"><b>' + (qi + 1) + '. ' + esc(q.q) + '</b>' + q.a.map(function (a, ai) { return '<label><input type="radio" name="q' + qi + '" value="' + ai + '"> ' + esc(a) + '</label>'; }).join('') + '<div class="exp"></div></div>';
-  });
-  html += '<div class="btnrow"><button class="btn yellow" id="grade">交卷</button><button class="btn ghost sm" id="retry" style="display:none">再做一次</button></div><p id="qresult" class="muted"></p></section>';
-
   // 驗收
   var verified = S.get(pfx + 'verified', false);
-  html += '<section class="card' + (quizPassed ? '' : ' locked') + '" id="verify"><h2>舊生驗收' + (verified ? ' <span class="badge">已驗收</span>' : '') + '</h2><p>' + esc(G.verify) + '</p>' +
-    (verified ? '' : '<p class="small muted">自測通過後，請舊生檢查，然後由舊生輸入本節驗收碼（老師區有）。</p><div style="display:flex;gap:8px"><input type="text" id="code" placeholder="驗收碼" style="max-width:160px"><button class="btn" id="vbtn">確認</button></div><p id="vmsg" class="small"></p>') + '</section>';
+  var allChecked = done === G.sections.length;
+  html += '<section class="card' + (allChecked || verified ? '' : ' locked') + '" id="verify"><h2>舊生驗收' + (verified ? ' <span class="badge">已驗收</span>' : '') + '</h2><p>' + esc(G.verify) + '</p>' +
+    (verified ? '' : '<p class="small muted">檢查點全部剔好後，請舊生檢查，由舊生輸入驗收碼。</p><div style="display:flex;gap:8px"><input type="text" id="code" placeholder="驗收碼" style="max-width:160px"><button class="btn" id="vbtn">確認</button></div><p id="vmsg" class="small"></p>') + '</section>';
 
   var next = GUIDE[gi + 1];
   html += '<div class="pager">' + (gi > 0 ? '<a class="btn ghost" href="guide.html?id=' + GUIDE[gi - 1].id + '">← 上一節</a>' : '<a class="btn ghost" href="index.html">← 課程</a>') +
@@ -109,45 +102,23 @@ details summary { cursor: pointer; font-weight: 600; }
     var n = 0; G.sections.forEach(function (_, i) { if (S.get(pfx + 'sec' + i, false)) n++; });
     var pct = Math.round(n / G.sections.length * 100);
     document.getElementById('pbar').style.width = pct + '%';
-    document.getElementById('ptext').textContent = '檢查點 ' + n + '/' + G.sections.length + (quizPassed ? '，自測已過' : '') + (verified ? '，已驗收' : '');
+    document.getElementById('ptext').textContent = '檢查點 ' + n + '/' + G.sections.length + '' + (verified ? '，已驗收' : '');
   }
   prog();
   document.getElementById('page').addEventListener('change', function (e) {
     if (e.target.type === 'checkbox' && e.target.hasAttribute('data-i')) {
       var i = e.target.getAttribute('data-i'); S.set(pfx + 'sec' + i, e.target.checked);
       document.getElementById('s' + i).classList.toggle('done', e.target.checked); prog();
+      var n = 0; G.sections.forEach(function (_, k) { if (S.get(pfx + 'sec' + k, false)) n++; });
+      document.getElementById('verify').classList.toggle('locked', n < G.sections.length && !verified);
     }
-  });
-
-  document.getElementById('grade').addEventListener('click', function () {
-    var right = 0, unanswered = 0;
-    G.quiz.forEach(function (q, qi) {
-      var el = document.querySelector('.quiz-q[data-q="' + qi + '"]');
-      var sel = el.querySelector('input:checked');
-      el.classList.add('graded');
-      if (!sel) { unanswered++; el.classList.add('wrongq'); el.querySelector('.exp').textContent = '未作答。' + q.e; return; }
-      var ok = parseInt(sel.value, 10) === q.c;
-      if (ok) right++;
-      el.classList.add(ok ? 'right' : 'wrongq');
-      el.querySelector('.exp').textContent = (ok ? '正確。' : '不對。正確答案：' + q.a[q.c] + '。') + q.e;
-    });
-    var pct = Math.round(right / G.quiz.length * 100);
-    var best = Math.max(pct, S.get(pfx + 'quiz', 0)); S.set(pfx + 'quiz', best);
-    document.getElementById('qresult').textContent = '答對 ' + right + '/' + G.quiz.length + '（' + pct + '%）' + (pct >= 80 ? ' — 通過！下面可以找舊生驗收。' : ' — 未夠 80%，看解釋後再做一次。');
-    document.getElementById('retry').style.display = 'inline-block';
-    if (pct >= 80) { quizPassed = true; document.getElementById('verify').classList.remove('locked'); prog(); }
-    document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
-  });
-  document.getElementById('retry').addEventListener('click', function () {
-    document.querySelectorAll('.quiz-q').forEach(function (el) { el.classList.remove('graded', 'right', 'wrongq'); el.querySelectorAll('input').forEach(function (i) { i.checked = false; }); });
-    document.getElementById('qresult').textContent = ''; this.style.display = 'none';
   });
 
   var vb = document.getElementById('vbtn');
   if (vb) vb.addEventListener('click', function () {
     var v = document.getElementById('code').value.trim();
     if (v === GUIDE_CODES[id]) { S.set(pfx + 'verified', true); location.reload(); }
-    else document.getElementById('vmsg').textContent = '驗收碼不對。要由舊生輸入。';
+    else document.getElementById('vmsg').textContent = '驗收碼不對。';
   });
 })();
 </script>
