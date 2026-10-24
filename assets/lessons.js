@@ -2,7 +2,7 @@
    場地尺寸參考值由附錄 A 抄錄，標明「實場核對」的數字學生必須到場地量度。 */
 window.LESSONS = [
   {
-    id: 1, phase: 'A', phaseName: '分析與規格', title: '規則卡與場地實測', time: '約 90 分鐘',
+    id: 1, track: 'comp', phase: 'A', phaseName: '分析與規格', title: '規則卡與場地實測', time: '約 90 分鐘',
     goal: [
       '能講出 Level Up 的得分方法和最重要的五條限制。',
       '用自己量度的數字填好「規則卡」，之後設計機器全靠這張卡。'
@@ -31,7 +31,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 2, phase: 'A', phaseName: '分析與規格', title: '策略與機器規格表', time: '約 90 分鐘',
+    id: 2, track: 'comp', phase: 'A', phaseName: '分析與規格', title: '策略與機器規格表', time: '約 90 分鐘',
     goal: [
       '用數據（不是感覺）決定主攻哪個 goal、走哪條路線。',
       '寫出一張「機器規格表」，之後砌每個部分都對照它。'
@@ -61,7 +61,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 3, phase: 'B', phaseName: '底盤', title: '砌底盤', time: '約 2 小時',
+    id: 3, track: 'comp', phase: 'B', phaseName: '底盤', title: '砌底盤', time: '約 2 小時',
     goal: [
       '砌出一個方正、對稱、夠硬淨的底盤，尺寸符合規格表。',
       '明白齒比、輪徑和摩打數如何影響速度和力。'
@@ -92,7 +92,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 4, phase: 'B', phaseName: '底盤', title: '底盤測試與駕駛', time: '約 90 分鐘',
+    id: 4, track: 'comp', phase: 'B', phaseName: '底盤', title: '底盤測試與駕駛', time: '約 90 分鐘',
     goal: [
       '用四個標準測試證明底盤合格，不合格就改。',
       '每位駕駛員熟習控制，找到最順手的搖桿設定。'
@@ -123,7 +123,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 5, phase: 'C', phaseName: '功能模組', title: '取物模組', time: '約 2 小時',
+    id: 5, track: 'comp', phase: 'C', phaseName: '功能模組', title: '取物模組', time: '約 2 小時',
     goal: [
       '比較三種取豆袋方案，用原型測試選一種。',
       '模組在桌面獨立可用，10 次拾取成功 8 次以上。'
@@ -153,7 +153,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 6, phase: 'C', phaseName: '功能模組', title: '升降／放置模組', time: '約 2 小時',
+    id: 6, track: 'comp', phase: 'C', phaseName: '功能模組', title: '升降／放置模組', time: '約 2 小時',
     goal: [
       '模組伸出時夠到規格表的目標高度，收合時整部機在起始尺寸內。',
       '用紙皮或散樑做 1:1 原型驗證高度，才正式砌。'
@@ -183,7 +183,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 7, phase: 'C', phaseName: '功能模組', title: '模組驗收與整合計劃', time: '約 60 分鐘',
+    id: 7, track: 'comp', phase: 'C', phaseName: '功能模組', title: '模組驗收與整合計劃', time: '約 60 分鐘',
     goal: [
       '每個模組獨立通過驗收才可上底盤。',
       '畫好整合計劃：裝在哪裡、用哪些固定點、摩打接哪個埠、線怎樣走。'
@@ -213,7 +213,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 8, phase: 'D', phaseName: '整合與程式', title: '整合與完整循環測試', time: '約 2 小時',
+    id: 8, track: 'comp', phase: 'D', phaseName: '整合與程式', title: '整合與完整循環測試', time: '約 2 小時',
     goal: [
       '模組正式裝上底盤，整機通過尺寸檢查。',
       '完成「拾 → 運 → 放」完整循環，量出每次得分需要幾秒。'
@@ -244,7 +244,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 9, phase: 'D', phaseName: '整合與程式', title: '自動程式與 Skills 路線', time: '約 2 小時',
+    id: 9, track: 'comp', phase: 'D', phaseName: '整合與程式', title: '自動程式與 Skills 路線', time: '約 2 小時',
     goal: [
       '寫一條可重複的自動路線，在 Skills 自動賽拿到分。',
       '駕駛員能在 60 秒內完成規劃好的 Teamwork 路線。'
@@ -274,7 +274,7 @@ window.LESSONS = [
     ]
   },
   {
-    id: 10, phase: 'E', phaseName: '迭代與比賽', title: '迭代循環與比賽準備', time: '每週持續',
+    id: 10, track: 'comp', phase: 'E', phaseName: '迭代與比賽', title: '迭代循環與比賽準備', time: '每週持續',
     goal: [
       '建立「問題 → 一次改一樣 → 再測 → 記錄」的固定循環。',
       '比賽日前完成檢錄清單和評審面試練習。'

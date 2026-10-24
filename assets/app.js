@@ -50,6 +50,8 @@
     ['sim.html', '模擬器'],
     ['calc.html', '計算器'],
     ['tools.html', '計分計時'],
+    ['rules.html', '規則'],
+    ['glossary.html', '術語'],
     ['resources.html', '資源']
   ];
   function renderNav() {

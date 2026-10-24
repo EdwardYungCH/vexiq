@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>術語表 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <h1>術語表（中英對照）</h1>
+  <p class="muted">圖紙、Game Manual 和裁判都用英文，所以英文要記得。新生前置課第 1 節要背零件部分。</p>
+  <input type="text" id="q" placeholder="搜尋：中文或英文" style="margin:12px 0">
+  <div id="list"></div>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var G = [
+    ['parts', '零件', [
+      ['樑', 'Beam', '有孔的長條，孔距半吋（12.7 mm）；1×N 和 2×N 兩種闊度。'],
+      ['板', 'Plate', '有孔的平面片，用來做底板或側板。'],
+      ['連接銷', 'Connector Pin', '把樑和板扣在一起的塑膠銷，插到底會「咔」一聲。'],
+      ['角接件', 'Corner Connector', '把兩條樑以直角或固定角度接起。'],
+      ['軸', 'Shaft', '方形截面的金屬或塑膠棒，穿過齒輪和輪傳動。'],
+      ['軸套', 'Bushing', '裝在樑孔上讓軸順滑轉動的圈。'],
+      ['墊片', 'Spacer / Washer', '套在軸上填空位，防齒輪左右移動。'],
+      ['軸環', 'Shaft Collar', '夾在軸上固定位置的小圈（橡膠或塑膠）。'],
+      ['齒輪', 'Gear', 'VEX IQ 常見 12、36、60 齒；齒數比例就是齒比。'],
+      ['鏈輪／鏈帶', 'Sprocket / Chain', '用鏈帶隔遠距離傳動。'],
+      ['車輪', 'Wheel', '輪上寫的數字是周長 mm（160、200、250）。'],
+      ['全向輪', 'Omni Wheel', '輪邊有小滾輪，可側滑，轉向順。'],
+      ['橡筋', 'Rubber Band', '用來輔助升降或彈性夾持；只可用規則列明的型號。'],
+      ['拆銷器', 'Pin Remover', '拆連接銷的工具，不要用手或鉗。'],
+      ['主腦', 'Brain', '機器的電腦，有螢幕和 12 個 Smart Port。第二代是白色。'],
+      ['Smart Motor', 'Smart Motor', 'VEX IQ 摩打，約 120 rpm，有內置編碼器；比賽最多 6 個。'],
+      ['電池', 'Battery', '第一代／第二代 IQ 電池，只可用原廠充電器。'],
+      ['控制器', 'Controller', '駕駛用的手掣，要和主腦配對（Link）。'],
+      ['Smart Port 線', 'Smart Cable', '接摩打和感應器到主腦的線。'],
+      ['慣性／陀螺感應器', 'Inertial / Gyro Sensor', '量方向角度；第二代主腦內置。'],
+      ['距離感應器', 'Distance Sensor', '量前方物件距離。'],
+      ['按鈕感應器', 'Bumper Switch', '碰到就觸發，常用來啟動自動程式。'],
+      ['光學／顏色感應器', 'Optical / Color Sensor', '讀顏色和亮度。'],
+      ['氣動', 'Pneumatics', '用壓縮空氣推動氣缸；要用官方 IQ 套件。']
+    ]],
+    ['game', '比賽與場地', [
+      ['聯賽', 'Teamwork Challenge', '兩隊一組（聯盟）合作得分，60 秒。'],
+      ['技能賽', 'Robot Skills Challenge', '單機計分，分駕駛技能（Driving Skills）和自動程式技能（Autonomous Coding Skills）。'],
+      ['聯盟', 'Alliance', '聯賽中和你同場合作的另一隊。'],
+      ['資格賽', 'Qualification Match', '排名用的場次，每場配不同隊友。'],
+      ['決賽', 'Finals', '按排名組成聯盟後的最終場次。'],
+      ['駕駛隊', 'Drive Team', '每場最多 3 人：2 位駕駛員（Driver）+ 1 位入袋員（Loader）。'],
+      ['駕駛區', 'Driver Station', '駕駛隊站的位置，成年人不可以入。'],
+      ['換手', 'Driver Switch', '餘下 0:35–0:25 之間兩位駕駛員交換控制器。'],
+      ['預載', 'Preload', '開賽時機器帶著的 1 個黃袋。'],
+      ['豆袋', 'Bean Bag', '今季的得分物（Scoring Object），3 × 4 吋，紅／藍／黃。'],
+      ['Floor Goal', 'Floor Goal', '場地兩端地面的得分區，1 分。'],
+      ['金字塔 goal', 'Pyramid Goal', '場角三層的 goal：L1（3）、L2（6）、L3（12）。'],
+      ['L4', 'L4 Goal', '最高的 goal，約 24 吋高，只收黃袋，16 分。'],
+      ['入袋區', 'Load Zone', '入袋員放豆袋入場的區域，紅藍各一。'],
+      ['持有', 'Possession', '拿住或推動豆袋；一次只可以 1 個。'],
+      ['起始位置', 'Starting Position', '開賽時機器要放的位置。'],
+      ['場地圍欄', 'Field Perimeter', '場地邊框；豆袋出了圍欄就不可以放回。'],
+      ['尺寸限制', 'Size Limit', '開賽 11 × 20 × 15 吋；開賽後長度可到 24 吋，高度無限。'],
+      ['伸展', 'Expansion', '開賽後機器伸出或升高。'],
+      ['檢錄', 'Inspection', '比賽前檢查機器是否合規，不過不可以出場。'],
+      ['牌照', 'License Plate', '隊號牌，兩塊裝在相對兩側。'],
+      ['主裁判', 'Head Referee', '場上最終裁決的人。'],
+      ['大會', 'Event Partner', '主辦比賽的機構／人。'],
+      ['取消資格', 'Disqualification (DQ)', '該場 0 分。'],
+      ['輕微／嚴重違規', 'Minor / Major Violation', '輕微會警告，嚴重會 DQ。'],
+      ['工程筆記', 'Engineering Notebook', '記錄設計過程的簿，評審用。'],
+      ['評審面試', 'Judging Interview', '評判和全隊面談，問設計過程。'],
+      ['設計獎', 'Design Award', '評審獎，看筆記和設計過程。'],
+      ['卓越獎', 'Excellence Award', '最高綜合獎，看比賽表現加評審。'],
+      ['Hero Bot', 'Hero Bot', '官方每季發布的示範機，今季叫 Flop。'],
+      ['RobotEvents', 'RobotEvents', '隊伍註冊和比賽報名的網站。']
+    ]],
+    ['build', '砌機與編程', [
+      ['底盤', 'Chassis / Drivetrain', '機器的車架和驅動部分。'],
+      ['取物機構', 'Intake', '拾起豆袋的機構（滾筒、夾爪、鏟）。'],
+      ['升降', 'Lift', '把豆袋升高的機構（手臂、剪叉、導軌）。'],
+      ['四連桿', 'Four-bar Linkage', '兩條平行樑做的手臂，末端保持水平。'],
+      ['剪叉', 'Scissor Lift', 'X 形交叉的升降。'],
+      ['齒比', 'Gear Ratio', '驅動齒輪齒數：被驅動齒輪齒數；大帶小快、小帶大有力。'],
+      ['直驅', 'Direct Drive', '摩打直接接車輪，齒比 1:1。'],
+      ['減速', 'Gear Reduction', '小齒帶大齒，慢但有力，升降常用。'],
+      ['重心', 'Center of Gravity', '愈低愈中愈穩，電池放低。'],
+      ['對稱', 'Symmetry', '左右一樣，直線才直。'],
+      ['支撐／橫樑', 'Bracing / Cross Beam', '把左右兩邊連住，防扭。'],
+      ['VEXcode IQ', 'VEXcode IQ', '官方編程軟件，有 Blocks 和 Python，有繁中介面。'],
+      ['Drivetrain 設定', 'Drivetrain Configuration', '在 VEXcode 設定左右摩打、輪周長、齒比。'],
+      ['雙搖桿／單搖桿', 'Tank / Arcade', '兩種駕駛控制方式。'],
+      ['方向', 'Heading', '陀螺量到的角度，0–360°。'],
+      ['自動程式', 'Autonomous', '不用控制器、機器自己跑的程式。'],
+      ['Virtual Skills', 'Virtual Skills', '官方瀏覽器 3D 模擬，用 Hero Bot 跑真場地。'],
+      ['韌體', 'VEXos (Firmware)', '主腦系統，比賽要用規定版本以上。'],
+      ['迭代', 'Iteration', '改一樣 → 測試 → 記錄 → 再改。'],
+      ['原型', 'Prototype', '快速砌出來試概念的版本。']
+    ]]
+  ];
+  var el = document.getElementById('list');
+  function render(q) {
+    q = (q || '').trim().toLowerCase();
+    el.innerHTML = G.map(function (sec) {
+      var rows = sec[2].filter(function (r) { return !q || (r[0] + r[1] + r[2]).toLowerCase().indexOf(q) >= 0; });
+      if (!rows.length) return '';
+      return '<section class="card" id="' + sec[0] + '"><h2>' + sec[1] + '</h2><div class="table-scroll"><table><thead><tr><th>中文</th><th>英文</th><th>解釋</th></tr></thead><tbody>' +
+        rows.map(function (r) { return '<tr><td><b>' + r[0] + '</b></td><td>' + r[1] + '</td><td class="small">' + r[2] + '</td></tr>'; }).join('') + '</tbody></table></div></section>';
+    }).join('') || '<p class="muted">找不到。</p>';
+  }
+  render('');
+  document.getElementById('q').addEventListener('input', function () { render(this.value); });
+})();
+</script>
+</body>
+</html>

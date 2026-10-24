@@ -14,14 +14,20 @@
 <footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。場地尺寸的參考值必須到實場核對。</footer>
 <script src="assets/app.js"></script>
 <script src="assets/lessons.js"></script>
+<script src="assets/lessons-prep.js"></script>
 <script src="assets/templates.js"></script>
 <script>
 (function () {
-  var n = parseInt(new URLSearchParams(location.search).get('n'), 10) || 1;
+  var q = new URLSearchParams(location.search);
+  var idParam = q.get('id') || q.get('n') || '1';
   var L = null;
-  LESSONS.forEach(function (l) { if (l.id === n) L = l; });
-  if (!L) { L = LESSONS[0]; n = L.id; }
-  document.title = '第 ' + n + ' 節 ' + L.title + ' · VEX IQ 自學';
+  ALL_LESSONS.forEach(function (l) { if (String(l.id) === idParam) L = l; });
+  if (!L) L = LESSONS[0];
+  var n = L.id;
+  var trackList = ALL_LESSONS.filter(function (l) { return l.track === L.track; });
+  var idx = trackList.indexOf(L);
+  var label = L.track === 'prep' ? '前置 ' + (idx + 1) : (L.track === 'teacher' ? '老師 ' + (idx + 1) : '第 ' + n + ' 節');
+  document.title = label + ' ' + L.title + ' · VEX IQ 自學';
   var S = VQ.store, esc = VQ.esc;
   var pfx = 'lesson' + n + '.';
 
@@ -29,7 +35,7 @@
 
   var html = '';
   html += '<div class="lesson-head"><span class="phase-tag">' + L.phase + '. ' + esc(L.phaseName) + '</span><span class="muted">' + esc(L.time) + '</span></div>';
-  html += '<h1>第 ' + n + ' 節　' + esc(L.title) + '</h1>';
+  html += '<h1>' + label + '　' + esc(L.title) + '</h1>';
   html += '<div class="progress-bar"><div id="pbar"></div></div><p class="muted" id="ptext"></p>';
 
   html += '<section class="card"><h2>本節目標</h2><ul>' + li(L.goal) + '</ul></section>';
@@ -46,7 +52,8 @@
     html += '<section class="notice">' + L.tips.map(function (t) { return '<div>• ' + esc(t) + '</div>'; }).join('') + '</section>';
   }
 
-  html += '<section class="card"><h2>交甚麼（寫入工程筆記）</h2><ul>' + li(L.deliver) + '</ul></section>';
+  if (L.deliver && L.deliver.length) html += '<section class="card"><h2>交甚麼（寫入工程筆記）</h2><ul>' + li(L.deliver) + '</ul></section>';
+  if (L.links && L.links.length) html += '<section class="card"><h2>延伸連結</h2><ul>' + L.links.map(function (k) { return '<li><a href="' + esc(k.href) + '" target="_blank" rel="noopener">' + esc(k.label) + ' ↗</a></li>'; }).join('') + '</ul></section>';
 
   if (L.template && TEMPLATES[L.template]) {
     html += '<section class="card" id="tpl"><h2>' + esc(TEMPLATES[L.template].title) + '</h2><p class="muted">' + esc(TEMPLATES[L.template].desc) + '</p>' +
@@ -55,8 +62,9 @@
 
   html += '<section class="card"><h2>本節反思（一兩句就夠）</h2><textarea id="reflect" placeholder="今日最難的是……我們解決的方法是……下次想改……">' + esc(S.get(pfx + 'reflect', '')) + '</textarea></section>';
 
-  var prev = n > 1 ? '<a class="btn ghost" href="lesson.html?n=' + (n - 1) + '">← 第 ' + (n - 1) + ' 節</a>' : '<a class="btn ghost" href="index.html">← 課程</a>';
-  var next = n < LESSONS.length ? '<a class="btn" href="lesson.html?n=' + (n + 1) + '">第 ' + (n + 1) + ' 節 →</a>' : '<a class="btn" href="index.html">回到課程 →</a>';
+  var home = L.track === 'teacher' ? 'teacher.html' : 'index.html';
+  var prev = idx > 0 ? '<a class="btn ghost" href="lesson.html?id=' + trackList[idx - 1].id + '">← 上一節</a>' : '<a class="btn ghost" href="' + home + '">← 返回</a>';
+  var next = idx < trackList.length - 1 ? '<a class="btn" href="lesson.html?id=' + trackList[idx + 1].id + '">下一節 →</a>' : (L.track === 'prep' ? '<a class="btn" href="lesson.html?id=1">進入比賽課程 →</a>' : '<a class="btn" href="' + home + '">返回 →</a>');
   html += '<div class="pager">' + prev + next + '</div>';
 
   document.getElementById('page').innerHTML = html;
@@ -81,7 +89,7 @@
   if (L.template && TEMPLATES[L.template]) {
     TEMPLATES.bind(document.getElementById('tpl'), pfx + 'tpl.');
     document.getElementById('copy-tpl').addEventListener('click', function () {
-      var text = '第 ' + n + ' 節 ' + L.title + ' — ' + TEMPLATES[L.template].title + '\n' + TEMPLATES.toText(L.template, pfx + 'tpl.');
+      var text = label + ' ' + L.title + ' — ' + TEMPLATES[L.template].title + '\n' + TEMPLATES.toText(L.template, pfx + 'tpl.');
       var r = S.get(pfx + 'reflect', '');
       if (r) text += '\n反思：' + r;
       VQ.copyText(text, this);

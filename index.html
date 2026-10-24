@@ -14,7 +14,7 @@
   <section class="hero">
     <span class="tag">2026–27 賽季 · Level Up</span>
     <h1>VEX IQ 機械人隊 自學課程</h1>
-    <p>十節課，由規則到比賽。舊生帶，新生做，每節有清楚的「做甚麼」和「交甚麼」。</p>
+    <p>新生前置 6 節 + 比賽課程 10 節，由零件到比賽。舊生帶，新生做，每節有清楚的「做甚麼」和「交甚麼」。</p>
   </section>
 
   <section class="card">
@@ -44,6 +44,8 @@
   <section class="card">
     <h2>工具</h2>
     <div class="grid three">
+      <a class="lesson-link" href="rules.html"><div class="n">§</div><div class="t">規則摘要<small>每條規則一句人話＋條號</small></div></a>
+      <a class="lesson-link" href="glossary.html"><div class="n">Aa</div><div class="t">術語表<small>中英對照，新生要背</small></div></a>
       <a class="lesson-link" href="sim.html"><div class="n">▶</div><div class="t">比賽模擬器<small>先在手機試路線和策略</small></div></a>
       <a class="lesson-link" href="calc.html"><div class="n">∑</div><div class="t">設計計算器<small>速度、尺寸、摩打、高度檢查</small></div></a>
       <a class="lesson-link" href="tools.html"><div class="n">⏱</div><div class="t">計分器＋計時器<small>練習時用，有換手提示</small></div></a>
@@ -53,11 +55,13 @@
 <footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。場地尺寸的參考值必須到實場核對。</footer>
 <script src="assets/app.js"></script>
 <script src="assets/lessons.js"></script>
+<script src="assets/lessons-prep.js"></script>
 <script>
 (function () {
   var map = document.getElementById('map');
   var phases = {};
-  LESSONS.forEach(function (l) { (phases[l.phase] = phases[l.phase] || []).push(l); });
+  var STUDENT = PREP.concat(LESSONS);
+  STUDENT.forEach(function (l) { (phases[l.phase] = phases[l.phase] || []).push(l); });
   var html = '';
   var total = 0, count = 0;
   Object.keys(phases).forEach(function (p) {
@@ -65,8 +69,8 @@
     phases[p].forEach(function (l) {
       var pct = VQ.lessonProgress(l);
       total += pct; count++;
-      html += '<a class="lesson-link' + (pct === 100 ? ' done' : '') + '" href="lesson.html?n=' + l.id + '">' +
-        '<div class="n">' + l.id + '</div>' +
+      html += '<a class="lesson-link' + (pct === 100 ? ' done' : '') + '" href="lesson.html?id=' + l.id + '">' +
+        '<div class="n">' + (l.track === 'prep' ? 'P' + (phases.P.indexOf(l) + 1) : l.id) + '</div>' +
         '<div class="t">' + VQ.esc(l.title) + '<small>' + VQ.esc(l.time) + '</small></div>' +
         '<div class="pct">' + (pct === 100 ? '完成' : pct + '%') + '</div></a>';
     });
@@ -79,11 +83,11 @@
 
   document.getElementById('export').addEventListener('click', function () {
     var lines = ['VEX IQ 自學進度 ' + new Date().toLocaleDateString('zh-HK')];
-    LESSONS.forEach(function (l) {
+    STUDENT.forEach(function (l) {
       var pct = VQ.lessonProgress(l);
       var doneSteps = [];
       l.steps.forEach(function (s, i) { if (VQ.store.get('lesson' + l.id + '.step' + i, false)) doneSteps.push(i + 1); });
-      lines.push('第 ' + l.id + ' 節 ' + l.title + '：' + pct + '%' + (doneSteps.length ? '（已完成步驟 ' + doneSteps.join(',') + '）' : ''));
+      lines.push((l.track === 'prep' ? '前置 ' : '第 ' + l.id + ' 節 ') + l.title + '：' + pct + '%' + (doneSteps.length ? '（已完成步驟 ' + doneSteps.join(',') + '）' : ''));
     });
     VQ.copyText(lines.join('\n'), this);
   });
