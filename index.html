@@ -39,6 +39,8 @@
     </ul>
   </section>
 
+  <section class="phase" id="guide-map"><h2>G. 圖文自學課（小白由此開始）</h2><p class="muted">每節有圖、檢查點、常見錯誤、自測題和舊生驗收，不用老師教。完成後再做下面的課程。</p><div id="guide-list"></div></section>
+
   <div id="map"></div>
 
   <section class="card">
@@ -56,6 +58,7 @@
 <script src="assets/app.js"></script>
 <script src="assets/lessons.js"></script>
 <script src="assets/lessons-prep.js"></script>
+<script src="assets/guide-data.js"></script>
 <script>
 (function () {
   var map = document.getElementById('map');
@@ -77,6 +80,13 @@
     html += '</section>';
   });
   map.innerHTML = html;
+  document.getElementById('guide-list').innerHTML = GUIDE.map(function (g, i) {
+    var pf = 'guide.' + g.id + '.', n = 0;
+    g.sections.forEach(function (_, k) { if (VQ.store.get(pf + 'sec' + k, false)) n++; });
+    var v = VQ.store.get(pf + 'verified', false);
+    var pct = Math.round(n / g.sections.length * 100);
+    return '<a class="lesson-link' + (v ? ' done' : '') + '" href="guide.html?id=' + g.id + '"><div class="n">G' + (i + 1) + '</div><div class="t">' + VQ.esc(g.title) + '<small>' + VQ.esc(g.time) + '</small></div><div class="pct">' + (v ? '已驗收' : pct + '%') + '</div></a>';
+  }).join('') + (GUIDE.length < 12 ? '<p class="small muted">其餘各節製作中（共 12 節）。</p>' : '');
   var overall = count ? Math.round(total / count) : 0;
   document.getElementById('overall').style.width = overall + '%';
   document.getElementById('overall-text').textContent = overall === 0 ? '尚未開始' : '已完成 ' + overall + '%';

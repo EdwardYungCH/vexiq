@@ -30,6 +30,19 @@
 
   <div id="teacher-track"></div>
 
+  <section class="card" id="codes">
+    <h2>圖文自學課驗收碼</h2>
+    <p class="small muted">學生自測通過後，由舊生檢查並輸入驗收碼解鎖下一節。驗收碼只給總教練（舊生）和老師。要改碼改 assets/guide-data.js 的 GUIDE_CODES。</p>
+    <div class="kv" id="code-list"></div>
+  </section>
+
+  <section class="card" id="ai">
+    <h2>AI 助教設定（放入 Sayo AI 或其他平台）</h2>
+    <p class="small muted">把下面的提示詞貼入學校 AI 平台建一個「VEX 助教」，學生卡關時先問它。它只答本課程範圍，用引導不直接給答案。</p>
+    <textarea id="ai-prompt" readonly style="min-height:260px;font-size:.85rem"></textarea>
+    <div class="btnrow"><button class="btn sm" id="copy-ai">複製提示詞</button></div>
+  </section>
+
   <section class="card" id="rubric">
     <h2>評核量表（每兩週評一次）</h2>
     <p class="small muted">每項 1–4 分：1 沒有、2 有但不完整、3 完整、4 完整並有改善證據。總分 16。</p>
@@ -78,6 +91,7 @@
 <script src="assets/app.js"></script>
 <script src="assets/lessons.js"></script>
 <script src="assets/lessons-prep.js"></script>
+<script src="assets/guide-data.js"></script>
 <script>
 (function () {
   var S = VQ.store, esc = VQ.esc;
@@ -89,6 +103,23 @@
     tt += '<a class="lesson-link' + (pct === 100 ? ' done' : '') + '" href="lesson.html?id=' + l.id + '"><div class="n">T' + (i + 1) + '</div><div class="t">' + esc(l.title) + '<small>' + esc(l.time) + '</small></div><div class="pct">' + (pct === 100 ? '完成' : pct + '%') + '</div></a>';
   });
   document.getElementById('teacher-track').innerHTML = tt + '</section>';
+
+  document.getElementById('code-list').innerHTML = Object.keys(GUIDE_CODES).map(function (k) { var g = null; GUIDE.forEach(function (x) { if (x.id === k) g = x; }); return '<b>' + k.toUpperCase() + '</b><span>' + GUIDE_CODES[k] + (g ? '　' + esc(g.title) : '　（製作中）') + '</span>'; }).join('');
+  document.getElementById('ai-prompt').value = [
+    '你是「VEX 助教」，協助香港中學 VEX IQ 機械人隊的新生自學。學生用的教材是學校的 VEX IQ Level Up 自學網頁（2026–27 賽季）。',
+    '',
+    '規則：',
+    '1. 只用繁體中文（香港用語：摩打、機械人、程式），技術詞附英文，例如「連接銷（Connector Pin）」。',
+    '2. 範圍限於 VEX IQ 零件、砌機、VEXcode IQ、Level Up 規則和比賽。其他話題請學生回到課程。',
+    '3. 學生卡關時先問三條問題找出原因（做到哪一步？看到甚麼？試過甚麼？），再給一個最小提示，不直接給整個答案。學生再問才多給一步。',
+    '4. 涉及規則時引用條號（例如 R9 摩打最多 6 個、SG6 一次只可持有一個豆袋、GG11 換手在 0:35–0:25），並提醒以英文 Game Manual 原文為準。',
+    '5. 安全問題（電池發脹、發熱、摩打冒煙）叫學生立即停用並找老師。',
+    '6. 不代學生做決定（例如選哪種取物機構），而是叫他們用方案比較表測試後再決定。',
+    '7. 每次回答不超過 150 字，用步驟列點。',
+    '',
+    '關鍵數字：樑孔距 12.7 mm；摩打約 120 rpm；車輪數字是周長 mm；機器起始尺寸 279 × 508 × 381 mm；開賽後長度上限 610 mm；最多 6 摩打；Floor／L1／L2／L3／L4 = 1／3／6／12／16 分；L4 只收黃袋；Teamwork 60 秒；換手 0:35–0:25。'
+  ].join('\n');
+  document.getElementById('copy-ai').addEventListener('click', function () { VQ.copyText(document.getElementById('ai-prompt').value, this); });
 
   // 評核量表
   var rubric = [['筆記完整', '每節有日期、簽名、做了甚麼'], ['測試數據', '有數字（cm、秒、次數），不是「OK」'], ['迭代證據', '問題 → 改一樣 → 前後數據'], ['分工記錄', '每人做過甚麼、角色有沒有輪換']];

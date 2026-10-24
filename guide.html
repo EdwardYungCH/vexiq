@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>圖文自學課 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.sec { border-left: 4px solid var(--line); padding-left: 12px; margin: 18px 0; }
+.sec.done { border-color: var(--ok); }
+.fig { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px; margin: 10px 0; }
+.fig img { max-width: 100%; display: block; margin: auto; border-radius: 6px; }
+.fig .cap { font-size: .8rem; color: var(--muted); text-align: center; margin-top: 4px; }
+.figrow { display: grid; grid-template-columns: 1fr; gap: 8px; }
+@media (min-width: 640px) { .figrow.n2 { grid-template-columns: 1fr 1fr; } .figrow.n3 { grid-template-columns: 1fr 1fr 1fr; } }
+.task { background: var(--yellow-soft); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.task b { color: #7a4b00; }
+.chk { display: flex; gap: 10px; align-items: flex-start; background: #e3f6ea; border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.chk input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--ok); flex-shrink: 0; }
+.wrong { font-size: .9rem; color: #7a1f2b; background: #ffe3e6; border-radius: 10px; padding: 8px 12px; margin: 8px 0; }
+.quiz-q { margin: 14px 0; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.quiz-q label { display: block; padding: 6px 8px; border-radius: 8px; cursor: pointer; }
+.quiz-q label:hover { background: #f1f3f7; }
+.quiz-q.right { border-color: var(--ok); } .quiz-q.wrongq { border-color: var(--red); }
+.quiz-q .exp { font-size: .9rem; color: var(--muted); margin-top: 6px; display: none; }
+.quiz-q.graded .exp { display: block; }
+.locked { opacity: .55; pointer-events: none; }
+.badge { display: inline-block; background: var(--ok); color: #fff; border-radius: 999px; padding: 2px 10px; font-size: .85rem; }
+details summary { cursor: pointer; font-weight: 600; }
+.toc a { display: inline-block; margin: 2px 6px 2px 0; font-size: .85rem; }
+</style>
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main id="page"></main>
+<footer>示意圖由本站自畫，非官方圖像；實物以零件盤為準。規則依據 Level Up Game Manual v2.1。</footer>
+<script src="assets/app.js"></script>
+<script src="assets/parts-svg.js"></script>
+<script src="assets/guide-data.js"></script>
+<script>
+(function () {
+  var S = VQ.store, esc = VQ.esc;
+  var id = new URLSearchParams(location.search).get('id') || 'g1';
+  var G = null, gi = 0;
+  GUIDE.forEach(function (g, i) { if (g.id === id) { G = g; gi = i; } });
+  if (!G) { G = GUIDE[0]; gi = 0; id = G.id; }
+  var pfx = 'guide.' + id + '.';
+  document.title = esc(G.title) + ' · VEX IQ 自學';
+
+  function fig(spec, cap) {
+    if (!spec) return '';
+    var fn = PSVG[spec[0]]; if (!fn) return '';
+    return '<div class="fig">' + fn.apply(null, spec.slice(1)) + (cap ? '<div class="cap">' + esc(cap) + '</div>' : '') + '</div>';
+  }
+  function photo(name) {
+    if (!name) return '';
+    var src = 'images/' + id + '/' + name + '.jpg';
+    return '<div class="fig photo" data-src="' + src + '" style="display:none"><img alt="實物相"><div class="cap">實物相</div></div>';
+  }
+
+  var done = 0;
+  var html = '<span class="phase-tag">圖文自學課 ' + (gi + 1) + '/' + GUIDE.length + '</span><h1>' + esc(G.title) + '</h1>' +
+    '<div class="kv"><b>時間</b><span>' + esc(G.time) + '</span><b>需要</b><span>' + esc(G.needs) + '</span></div>' +
+    '<div class="progress-bar"><div id="pbar"></div></div><p class="muted" id="ptext"></p>' +
+    '<section class="card"><p>' + esc(G.intro) + '</p><div class="toc">' + G.sections.map(function (s, i) { return '<a href="#s' + i + '">' + esc(s.h) + '</a>'; }).join('') + '</div></section>';
+
+  G.sections.forEach(function (s, i) {
+    var d = S.get(pfx + 'sec' + i, false); if (d) done++;
+    var figs = [s.svg, s.svg2, s.svg3].filter(Boolean);
+    html += '<section class="sec' + (d ? ' done' : '') + '" id="s' + i + '"><h2>' + esc(s.h) + '</h2>';
+    if (figs.length) html += '<div class="figrow n' + figs.length + '">' + figs.map(function (f) { return fig(f); }).join('') + '</div>';
+    html += photo(s.img);
+    html += '<ul>' + (s.body || []).map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>';
+    if (s.task) html += '<div class="task"><b>動手：</b>' + esc(s.task) + '</div>';
+    html += '<div class="chk"><input type="checkbox" id="c' + i + '" data-i="' + i + '"' + (d ? ' checked' : '') + '><label for="c' + i + '"><b>檢查點：</b>' + esc(s.check) + '</label></div>';
+    if (s.wrong) html += '<div class="wrong"><b>做錯了會怎樣：</b><ul style="margin:4px 0 0">' + s.wrong.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
+    html += '</section>';
+  });
+
+  html += '<section class="card"><h2>卡住了？</h2><div class="kv">' + G.stuck.map(function (k) { return '<b>' + esc(k[0]) + '</b><span>' + esc(k[1]) + '</span>'; }).join('') + '</div><p class="small muted" style="margin-top:8px">仍然卡住：問舊生；舊生不在就拍相貼到隊群組，繼續做下一步。</p></section>';
+
+  // 自測
+  var quizPassed = S.get(pfx + 'quiz', 0) >= 80;
+  html += '<section class="card" id="quiz"><h2>自測（' + G.quiz.length + ' 題，答對 80% 才過）' + (quizPassed ? ' <span class="badge">已通過 ' + S.get(pfx + 'quiz', 0) + '%</span>' : '') + '</h2>';
+  G.quiz.forEach(function (q, qi) {
+    html += '<div class="quiz-q" data-q="' + qi + '"><b>' + (qi + 1) + '. ' + esc(q.q) + '</b>' + q.a.map(function (a, ai) { return '<label><input type="radio" name="q' + qi + '" value="' + ai + '"> ' + esc(a) + '</label>'; }).join('') + '<div class="exp"></div></div>';
+  });
+  html += '<div class="btnrow"><button class="btn yellow" id="grade">交卷</button><button class="btn ghost sm" id="retry" style="display:none">再做一次</button></div><p id="qresult" class="muted"></p></section>';
+
+  // 驗收
+  var verified = S.get(pfx + 'verified', false);
+  html += '<section class="card' + (quizPassed ? '' : ' locked') + '" id="verify"><h2>舊生驗收' + (verified ? ' <span class="badge">已驗收</span>' : '') + '</h2><p>' + esc(G.verify) + '</p>' +
+    (verified ? '' : '<p class="small muted">自測通過後，請舊生檢查，然後由舊生輸入本節驗收碼（老師區有）。</p><div style="display:flex;gap:8px"><input type="text" id="code" placeholder="驗收碼" style="max-width:160px"><button class="btn" id="vbtn">確認</button></div><p id="vmsg" class="small"></p>') + '</section>';
+
+  var next = GUIDE[gi + 1];
+  html += '<div class="pager">' + (gi > 0 ? '<a class="btn ghost" href="guide.html?id=' + GUIDE[gi - 1].id + '">← 上一節</a>' : '<a class="btn ghost" href="index.html">← 課程</a>') +
+    (next ? '<a class="btn' + (verified ? '' : ' locked') + '" id="nextbtn" href="guide.html?id=' + next.id + '">' + (verified ? '下一節 →' : '驗收後解鎖下一節') + '</a>' : '<a class="btn" href="index.html">返回課程 →</a>') + '</div>';
+
+  document.getElementById('page').innerHTML = html;
+
+  // 實物相：有檔案才顯示
+  document.querySelectorAll('.fig.photo').forEach(function (f) {
+    var im = f.querySelector('img'); im.onload = function () { f.style.display = 'block'; }; im.src = f.getAttribute('data-src');
+  });
+
+  function prog() {
+    var n = 0; G.sections.forEach(function (_, i) { if (S.get(pfx + 'sec' + i, false)) n++; });
+    var pct = Math.round(n / G.sections.length * 100);
+    document.getElementById('pbar').style.width = pct + '%';
+    document.getElementById('ptext').textContent = '檢查點 ' + n + '/' + G.sections.length + (quizPassed ? '，自測已過' : '') + (verified ? '，已驗收' : '');
+  }
+  prog();
+  document.getElementById('page').addEventListener('change', function (e) {
+    if (e.target.type === 'checkbox' && e.target.hasAttribute('data-i')) {
+      var i = e.target.getAttribute('data-i'); S.set(pfx + 'sec' + i, e.target.checked);
+      document.getElementById('s' + i).classList.toggle('done', e.target.checked); prog();
+    }
+  });
+
+  document.getElementById('grade').addEventListener('click', function () {
+    var right = 0, unanswered = 0;
+    G.quiz.forEach(function (q, qi) {
+      var el = document.querySelector('.quiz-q[data-q="' + qi + '"]');
+      var sel = el.querySelector('input:checked');
+      el.classList.add('graded');
+      if (!sel) { unanswered++; el.classList.add('wrongq'); el.querySelector('.exp').textContent = '未作答。' + q.e; return; }
+      var ok = parseInt(sel.value, 10) === q.c;
+      if (ok) right++;
+      el.classList.add(ok ? 'right' : 'wrongq');
+      el.querySelector('.exp').textContent = (ok ? '正確。' : '不對。正確答案：' + q.a[q.c] + '。') + q.e;
+    });
+    var pct = Math.round(right / G.quiz.length * 100);
+    var best = Math.max(pct, S.get(pfx + 'quiz', 0)); S.set(pfx + 'quiz', best);
+    document.getElementById('qresult').textContent = '答對 ' + right + '/' + G.quiz.length + '（' + pct + '%）' + (pct >= 80 ? ' — 通過！下面可以找舊生驗收。' : ' — 未夠 80%，看解釋後再做一次。');
+    document.getElementById('retry').style.display = 'inline-block';
+    if (pct >= 80) { quizPassed = true; document.getElementById('verify').classList.remove('locked'); prog(); }
+    document.getElementById('quiz').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('retry').addEventListener('click', function () {
+    document.querySelectorAll('.quiz-q').forEach(function (el) { el.classList.remove('graded', 'right', 'wrongq'); el.querySelectorAll('input').forEach(function (i) { i.checked = false; }); });
+    document.getElementById('qresult').textContent = ''; this.style.display = 'none';
+  });
+
+  var vb = document.getElementById('vbtn');
+  if (vb) vb.addEventListener('click', function () {
+    var v = document.getElementById('code').value.trim();
+    if (v === GUIDE_CODES[id]) { S.set(pfx + 'verified', true); location.reload(); }
+    else document.getElementById('vmsg').textContent = '驗收碼不對。要由舊生輸入。';
+  });
+})();
+</script>
+</body>
+</html>
