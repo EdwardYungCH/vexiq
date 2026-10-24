@@ -2,7 +2,7 @@
    這些是示意圖，不是官方圖像；用來認零件和看步驟，實物以零件盤為準。 */
 (function () {
   var U = 24; // 一格
-  var C = { body: '#2f6fb5', body2: '#5b8fd1', hole: '#ffffff', line: '#1b2b44', metal: '#9aa3ad', metalD: '#5f6a75', green: '#2e9e5b', grey: '#c8ccd2', dark: '#2b2f36', yellow: '#f2c200', red: '#d7263d', black: '#222' };
+  var C = { blue: '#2a6fdb', body: '#2f6fb5', body2: '#5b8fd1', hole: '#ffffff', line: '#1b2b44', metal: '#9aa3ad', metalD: '#5f6a75', green: '#2e9e5b', grey: '#c8ccd2', dark: '#2b2f36', yellow: '#f2c200', red: '#d7263d', black: '#222' };
 
   function svg(w, h, inner, vb) {
     return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="' + (vb || '0 0 ' + w + ' ' + h) + '" width="100%" style="max-width:' + w + 'px;display:block;margin:auto" role="img">' + inner + '</svg>';
@@ -45,15 +45,15 @@
     var s = '<rect x="20" y="40" width="160" height="24" rx="4" fill="' + C.body + '" stroke="' + C.line + '"/><rect x="20" y="64" width="160" height="24" rx="4" fill="' + C.body2 + '" stroke="' + C.line + '"/>' +
       '<rect x="93" y="30" width="14" height="68" rx="3" fill="' + C.dark + '"/><rect x="89" y="60" width="22" height="8" rx="2" fill="' + C.dark + '"/>' +
       '<path d="M93 30 l7 -8 l7 8z" fill="' + C.dark + '"/><path d="M93 98 l7 8 l7 -8z" fill="' + C.dark + '"/>' +
-      label(100, 20, '剖面：銷把兩條樑扣住', 12) + label(100, 125, '中間的圓環卡在兩樑之間，插到底會「咔」一聲', 11);
-    return svg(200, 135, s);
+      label(130, 20, '剖面：銷把兩條樑扣住', 12) + label(130, 125, '圓環卡在兩樑之間，插到底「咔」一聲', 11);
+    return svg(260, 135, s.replace('x="100"', 'x="130"').replace('x="100" y="125"', 'x="130" y="125"'));
   }
   function corner(angle) {
     var s = defs;
     if (angle === 90) {
-      s += '<path d="M20 20 h24 v72 h72 v24 h-96z" fill="' + C.body + '" stroke="' + C.line + '" stroke-width="1.5"/>' + holes(20, 20, 1, 4) + holes(44, 92, 3, 1) + label(70, 140, '直角角接件（90°）', 12);
+      s += '<path d="M20 20 h24 v72 h72 v24 h-96z" fill="' + C.body + '" stroke="' + C.line + '" stroke-width="1.5"/>' + holes(20, 20, 1, 4) + holes(44, 92, 3, 1) + label(70, 140, '直角樑 Right Angle Beam', 11);
     } else {
-      s += '<path d="M20 20 h24 v60 l50 36 l-14 18 l-60 -42z" fill="' + C.body + '" stroke="' + C.line + '" stroke-width="1.5"/>' + holes(20, 20, 1, 3) + label(70, 150, '斜角角接件（' + angle + '°）', 12);
+      s += '<path d="M20 20 h24 v60 l50 36 l-14 18 l-60 -42z" fill="' + C.body + '" stroke="' + C.line + '" stroke-width="1.5"/>' + holes(20, 20, 1, 3) + label(70, 150, '斜樑 Angle Beam（' + angle + '°）', 11);
     }
     return svg(140, 160, s);
   }
@@ -63,7 +63,7 @@
       '<rect x="' + (L + 30) + '" y="20" width="12" height="12" fill="' + C.metal + '" stroke="' + C.metalD + '" transform="rotate(45 ' + (L + 36) + ' 26)"/>' + label(L + 36, 50, '方形截面', 10) + label(L / 2 + 20, 60, n + ' 格長軸（' + (n * 12.7).toFixed(0) + ' mm）', 12));
   }
   function bushing() {
-    return svg(120, 110, '<circle cx="60" cy="45" r="26" fill="' + C.grey + '" stroke="' + C.line + '"/><rect x="51" y="36" width="18" height="18" fill="#fff" stroke="' + C.line + '"/>' + label(60, 95, '軸套：裝在樑孔，軸穿過順滑轉', 11));
+    return svg(200, 110, '<circle cx="100" cy="45" r="26" fill="' + C.grey + '" stroke="' + C.line + '"/><rect x="91" y="36" width="18" height="18" fill="#fff" stroke="' + C.line + '"/>' + label(100, 95, '軸套：入樑孔，軸轉得順', 11));
   }
   function spacer() {
     return svg(200, 110, '<circle cx="50" cy="45" r="18" fill="' + C.grey + '" stroke="' + C.line + '"/><rect x="43" y="38" width="14" height="14" fill="#fff" stroke="' + C.line + '"/>' + label(50, 80, '薄墊片', 11) +
@@ -81,22 +81,23 @@
     return '<path d="' + p + 'Z" fill="' + C.green + '" stroke="' + C.line + '" stroke-width="1.2"/><rect x="' + (cx - 6) + '" y="' + (cy - 6) + '" width="12" height="12" fill="#fff" stroke="' + C.line + '"/>';
   }
   function gearSet() {
-    return svg(300, 150, gear(12, 45, 70, 18) + label(45, 115, '12 齒', 12) + gear(36, 135, 70, 42) + label(135, 135, '36 齒', 12) + gear(60, 255, 70, 60) + label(255, 145, '60 齒', 12));
+    return svg(330, 160, gear(12, 45, 70, 18) + label(45, 115, '12 齒', 12) + gear(36, 135, 70, 42) + label(135, 135, '36 齒', 12) + gear(60, 262, 70, 60) + label(262, 150, '60 齒', 12));
   }
-  function gearMesh(a, b) {
-    var ra = a === 12 ? 18 : a === 36 ? 42 : 60, rb = b === 12 ? 18 : b === 36 ? 42 : 60;
-    var cx1 = 30 + ra, cx2 = cx1 + ra + rb - 4, cy = 80;
-    return svg(cx2 + rb + 30, 170, gear(a, cx1, cy, ra) + gear(b, cx2, cy, rb) +
-      '<path d="M' + (cx1 - 8) + ' ' + (cy - ra - 12) + ' a12 12 0 0 1 16 0" fill="none" stroke="' + C.red + '" stroke-width="2" marker-end="url(#a)"/>' + defs +
-      label(cx1, cy + ra + 18, '摩打 ' + a + ' 齒', 12) + label(cx2, cy + rb + 18, '車輪 ' + b + ' 齒', 12) +
-      label((cx1 + cx2) / 2, 160, '齒比 ' + a + ':' + b + ' → 輪速 = 摩打 × ' + (a / b).toFixed(2), 12));
+  function gearMesh(a, b, nameA, nameB) {
+    var R = { 12: 18, 36: 42, 60: 60 };
+    var ra = R[a] || 30, rb = R[b] || 30;
+    var cx1 = 24 + ra, cx2 = cx1 + ra + rb - 4, cy = 24 + Math.max(ra, rb);
+    var w = cx2 + rb + 24, h = cy + Math.max(ra, rb) + 56;
+    return svg(w, h, gear(a, cx1, cy, ra) + gear(b, cx2, cy, rb) +
+      label(cx1, cy + Math.max(ra, rb) + 18, (nameA || '摩打') + ' ' + a + ' 齒', 11) + label(cx2, cy + Math.max(ra, rb) + 18, (nameB || '輸出') + ' ' + b + ' 齒', 11) +
+      label(w / 2, h - 10, '齒比 ' + a + ':' + b + '，輸出轉速 = 摩打 × ' + (a / b).toFixed(2) + '；中心距 ' + ((a + b) / 24) + ' 格', 11));
   }
   function wheel(kind) {
     var s = '<circle cx="60" cy="60" r="50" fill="' + C.dark + '" stroke="' + C.line + '"/><circle cx="60" cy="60" r="34" fill="' + C.grey + '" stroke="' + C.line + '"/><rect x="54" y="54" width="12" height="12" fill="#fff" stroke="' + C.line + '"/>';
     if (kind === 'omni') {
       for (var i = 0; i < 12; i++) { var a = i / 12 * Math.PI * 2; s += '<ellipse cx="' + (60 + 50 * Math.cos(a)) + '" cy="' + (60 + 50 * Math.sin(a)) + '" rx="5" ry="9" transform="rotate(' + (a * 180 / Math.PI) + ' ' + (60 + 50 * Math.cos(a)) + ' ' + (60 + 50 * Math.sin(a)) + ')" fill="' + C.grey + '" stroke="' + C.line + '"/>'; }
     }
-    return svg(120, 140, s + label(60, 130, kind === 'omni' ? '全向輪：輪邊有小滾輪' : '普通輪：輪上數字 = 周長 mm', 11));
+    return svg(200, 140, s.replace(/cx="60"/g, 'cx="100"').replace(/x="54"/g, 'x="94"') + label(100, 130, kind === 'omni' ? '全向輪：輪邊有小滾輪' : '普通輪：數字 = 周長 mm', 11));
   }
   function rubber() { return svg(120, 90, '<ellipse cx="60" cy="40" rx="45" ry="18" fill="none" stroke="#c0392b" stroke-width="5"/>' + label(60, 80, '橡筋', 12)); }
   function pinRemover() {
@@ -152,12 +153,17 @@
 
   // 四連桿動畫示意、重心示意
   function fourBar() {
-    return svg(260, 170, defs +
-      '<rect x="20" y="120" width="60" height="30" rx="4" fill="' + C.body + '"/>' +
-      '<g><line x1="40" y1="120" x2="140" y2="60" stroke="' + C.green + '" stroke-width="8" stroke-linecap="round"/><line x1="70" y1="120" x2="170" y2="60" stroke="' + C.green + '" stroke-width="8" stroke-linecap="round"/>' +
-      '<rect x="135" y="40" width="50" height="30" rx="4" fill="' + C.yellow + '"/>' +
-      '<animateTransform attributeName="transform" type="rotate" values="0 40 120; -25 40 120; 0 40 120" dur="3s" repeatCount="indefinite"/></g>' +
-      label(130, 165, '四連桿：兩條平行樑，末端（黃）升降時保持水平', 11));
+    function frame(ox, ang, cap) {
+      var r = Math.PI / 180 * ang, L = 100, p1 = [ox + 30, 130], p2 = [ox + 60, 130];
+      var q1 = [p1[0] + L * Math.cos(r), p1[1] - L * Math.sin(r)], q2 = [p2[0] + L * Math.cos(r), p2[1] - L * Math.sin(r)];
+      return '<rect x="' + (ox + 10) + '" y="130" width="70" height="24" rx="4" fill="' + C.body + '"/>' +
+        '<line x1="' + p1[0] + '" y1="' + p1[1] + '" x2="' + q1[0] + '" y2="' + q1[1] + '" stroke="' + C.green + '" stroke-width="7" stroke-linecap="round"/>' +
+        '<line x1="' + p2[0] + '" y1="' + p2[1] + '" x2="' + q2[0] + '" y2="' + q2[1] + '" stroke="' + C.green + '" stroke-width="7" stroke-linecap="round"/>' +
+        '<rect x="' + (q1[0] - 4) + '" y="' + (q1[1] - 12) + '" width="40" height="22" rx="3" fill="' + C.yellow + '" stroke="#333"/>' +
+        [p1, p2, q1, q2].map(function (p) { return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" fill="#fff" stroke="' + C.line + '"/>'; }).join('') +
+        label(ox + 70, 175, cap, 11);
+    }
+    return svg(330, 190, frame(0, 20, '低位') + frame(170, 60, '高位') + label(165, 18, '四連桿：4 個轉軸（白點），末端黃塊保持水平', 11));
   }
   function cog() {
     return svg(260, 160, '<rect x="30" y="100" width="90" height="30" rx="4" fill="' + C.body + '"/><rect x="60" y="80" width="30" height="20" fill="' + C.dark + '"/><circle cx="75" cy="105" r="5" fill="' + C.red + '"/>' + label(75, 150, '電池放低放中：穩', 11) +
@@ -191,13 +197,14 @@
   }
   // 金字塔側視（分數）
   function pyramidSide() {
-    var s = '';
-    [[20, 2.5, 'L1 3分'], [14.5, 5, 'L2 6分'], [8.5, 8, 'L3 12分']].forEach(function (l, i) {
-      var w = l[0] * 10, h = l[1] * 10; s += '<rect x="' + (20) + '" y="' + (150 - h) + '" width="' + w + '" height="' + (h - (i ? [2.5, 5][i - 1] * 10 : 0)) + '" fill="rgba(215,38,61,' + (.35 + i * .2) + ')" stroke="#fff"/>' + label(20 + w - 22, 150 - h + 14, l[2], 10);
+    var s = label(190, 18, '愈高分愈多；L4 只收黃袋', 12);
+    var base = 170, x0 = 20;
+    [[200, 25, 'L1 3分', .35], [145, 50, 'L2 6分', .55], [85, 80, 'L3 12分', .8]].forEach(function (l) {
+      s += '<rect x="' + x0 + '" y="' + (base - l[1]) + '" width="' + l[0] + '" height="' + l[1] + '" fill="rgba(215,38,61,' + l[3] + ')" stroke="#fff"/>' + label(x0 + l[0] - 26, base - l[1] + 14, l[2], 10);
     });
-    s += '<rect x="250" y="150" width="60" height="4" fill="#999"/>' + label(280, 170, 'Floor 1分', 10);
-    s += '<line x1="330" y1="150" x2="330" y2="-90" stroke="#555" stroke-width="3"/><ellipse cx="330" cy="-90" rx="20" ry="8" fill="' + C.yellow + '" stroke="' + C.line + '"/>' + label(330, -100, 'L4 16分 只收黃', 10);
-    return svg(380, 180, '<g transform="translate(0 100)">' + s + '</g>' + label(190, 15, '愈高分愈多', 12), '0 -10 380 190');
+    s += '<rect x="240" y="' + (base - 4) + '" width="60" height="4" fill="#999"/>' + label(270, base + 14, 'Floor 1分', 10);
+    s += '<line x1="340" y1="' + base + '" x2="340" y2="40" stroke="#555" stroke-width="3"/><ellipse cx="340" cy="40" rx="18" ry="7" fill="' + C.yellow + '" stroke="' + C.line + '"/>' + label(340, 30, 'L4 16分', 10);
+    return svg(380, 195, s);
   }
   function timeline() {
     var s = '<rect x="20" y="40" width="300" height="20" fill="#e6e9ef" stroke="' + C.line + '"/>';

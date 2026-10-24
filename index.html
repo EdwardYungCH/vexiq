@@ -14,7 +14,7 @@
   <section class="hero">
     <span class="tag">2026–27 賽季 · Level Up</span>
     <h1>VEX IQ 機械人隊 自學課程</h1>
-    <p>新生前置 6 節 + 比賽課程 10 節，由零件到比賽。舊生帶，新生做，每節有清楚的「做甚麼」和「交甚麼」。</p>
+    <p>一條路由零件到比賽：階段 0 到 7。每節有圖、動手、檢查點，舊生驗收後才進下一節。</p>
   </section>
 
   <section class="card">
@@ -39,9 +39,7 @@
     </ul>
   </section>
 
-  <section class="phase" id="guide-map"><h2>G. 圖文自學課（小白由此開始）</h2><p class="muted">每節有圖、檢查點、常見錯誤和舊生驗收，不用老師教。完成後再做下面的課程。</p><div id="guide-list"></div></section>
-
-  <div id="map"></div>
+  <div id="route"></div>
 
   <section class="card">
     <h2>工具</h2>
@@ -57,48 +55,37 @@
 <footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。場地尺寸的參考值必須到實場核對。</footer>
 <script src="assets/app.js"></script>
 <script src="assets/lessons.js"></script>
-<script src="assets/lessons-prep.js"></script>
 <script src="assets/guide-data.js"></script>
 <script>
 (function () {
-  var map = document.getElementById('map');
-  var phases = {};
-  var STUDENT = PREP.concat(LESSONS);
-  STUDENT.forEach(function (l) { (phases[l.phase] = phases[l.phase] || []).push(l); });
-  var html = '';
-  var total = 0, count = 0;
-  Object.keys(phases).forEach(function (p) {
-    html += '<section class="phase"><h2>' + p + '. ' + PHASES[p].name + '</h2><p class="muted">' + PHASES[p].desc + '</p>';
-    phases[p].forEach(function (l) {
-      var pct = VQ.lessonProgress(l);
-      total += pct; count++;
-      html += '<a class="lesson-link' + (pct === 100 ? ' done' : '') + '" href="lesson.html?id=' + l.id + '">' +
-        '<div class="n">' + (l.track === 'prep' ? 'P' + (phases.P.indexOf(l) + 1) : l.id) + '</div>' +
-        '<div class="t">' + VQ.esc(l.title) + '<small>' + VQ.esc(l.time) + '</small></div>' +
-        '<div class="pct">' + (pct === 100 ? '完成' : pct + '%') + '</div></a>';
-    });
+  var S = VQ.store;
+  function gProg(g) { var pf = 'guide.' + g.id + '.', n = 0; g.sections.forEach(function (_, k) { if (S.get(pf + 'sec' + k, false)) n++; }); return { pct: Math.round(n / g.sections.length * 100), v: S.get(pf + 'verified', false) }; }
+  var html = '', total = 0, count = 0;
+  STAGES.forEach(function (st) {
+    html += '<section class="phase"><h2>階段 ' + st.id + '　' + VQ.esc(st.name) + '</h2><p class="muted">' + VQ.esc(st.desc) + '</p>';
+    if (st.link) {
+      var ls = st.id === 6 ? LESSONS.slice(0, 9) : LESSONS.slice(9);
+      ls.forEach(function (l) {
+        var pct = VQ.lessonProgress(l); total += pct; count++;
+        html += '<a class="lesson-link' + (pct === 100 ? ' done' : '') + '" href="lesson.html?id=' + l.id + '"><div class="n">' + l.id + '</div><div class="t">' + VQ.esc(l.title) + '<small>' + VQ.esc(l.time) + '</small></div><div class="pct">' + (pct === 100 ? '完成' : pct + '%') + '</div></a>';
+      });
+    } else {
+      GUIDE.filter(function (g) { return g.stage === st.id; }).forEach(function (g, i) {
+        var pr = gProg(g); total += (pr.v ? 100 : pr.pct); count++;
+        html += '<a class="lesson-link' + (pr.v ? ' done' : '') + '" href="guide.html?id=' + g.id + '"><div class="n">' + st.id + '.' + (i + 1) + '</div><div class="t">' + VQ.esc(g.title) + '<small>' + VQ.esc(g.time) + '</small></div><div class="pct">' + (pr.v ? '已驗收' : pr.pct + '%') + '</div></a>';
+      });
+    }
     html += '</section>';
   });
-  map.innerHTML = html;
-  document.getElementById('guide-list').innerHTML = GUIDE.map(function (g, i) {
-    var pf = 'guide.' + g.id + '.', n = 0;
-    g.sections.forEach(function (_, k) { if (VQ.store.get(pf + 'sec' + k, false)) n++; });
-    var v = VQ.store.get(pf + 'verified', false);
-    var pct = Math.round(n / g.sections.length * 100);
-    return '<a class="lesson-link' + (v ? ' done' : '') + '" href="guide.html?id=' + g.id + '"><div class="n">G' + (i + 1) + '</div><div class="t">' + VQ.esc(g.title) + '<small>' + VQ.esc(g.time) + '</small></div><div class="pct">' + (v ? '已驗收' : pct + '%') + '</div></a>';
-  }).join('') + '';
+  document.getElementById('route').innerHTML = html;
   var overall = count ? Math.round(total / count) : 0;
   document.getElementById('overall').style.width = overall + '%';
   document.getElementById('overall-text').textContent = overall === 0 ? '尚未開始' : '已完成 ' + overall + '%';
 
   document.getElementById('export').addEventListener('click', function () {
     var lines = ['VEX IQ 自學進度 ' + new Date().toLocaleDateString('zh-HK')];
-    STUDENT.forEach(function (l) {
-      var pct = VQ.lessonProgress(l);
-      var doneSteps = [];
-      l.steps.forEach(function (s, i) { if (VQ.store.get('lesson' + l.id + '.step' + i, false)) doneSteps.push(i + 1); });
-      lines.push((l.track === 'prep' ? '前置 ' : '第 ' + l.id + ' 節 ') + l.title + '：' + pct + '%' + (doneSteps.length ? '（已完成步驟 ' + doneSteps.join(',') + '）' : ''));
-    });
+    GUIDE.forEach(function (g) { var pr = gProg(g); lines.push('階段 ' + g.stage + ' ' + g.title + '：' + (pr.v ? '已驗收' : pr.pct + '%')); });
+    LESSONS.forEach(function (l) { lines.push('比賽課程第 ' + l.id + ' 節 ' + l.title + '：' + VQ.lessonProgress(l) + '%'); });
     VQ.copyText(lines.join('\n'), this);
   });
   document.getElementById('reset').addEventListener('click', function () {

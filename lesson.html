@@ -26,7 +26,7 @@
   var n = L.id;
   var trackList = ALL_LESSONS.filter(function (l) { return l.track === L.track; });
   var idx = trackList.indexOf(L);
-  var label = L.track === 'prep' ? '前置 ' + (idx + 1) : (L.track === 'teacher' ? '老師 ' + (idx + 1) : '第 ' + n + ' 節');
+  var label = L.track === 'teacher' ? '老師 ' + (idx + 1) : '比賽課程 第 ' + n + ' 節';
   document.title = label + ' ' + L.title + ' · VEX IQ 自學';
   var S = VQ.store, esc = VQ.esc;
   var pfx = 'lesson' + n + '.';
@@ -64,7 +64,7 @@
 
   var home = L.track === 'teacher' ? 'teacher.html' : 'index.html';
   var prev = idx > 0 ? '<a class="btn ghost" href="lesson.html?id=' + trackList[idx - 1].id + '">← 上一節</a>' : '<a class="btn ghost" href="' + home + '">← 返回</a>';
-  var next = idx < trackList.length - 1 ? '<a class="btn" href="lesson.html?id=' + trackList[idx + 1].id + '">下一節 →</a>' : (L.track === 'prep' ? '<a class="btn" href="lesson.html?id=1">進入比賽課程 →</a>' : '<a class="btn" href="' + home + '">返回 →</a>');
+  var next = idx < trackList.length - 1 ? '<a class="btn" href="lesson.html?id=' + trackList[idx + 1].id + '">下一節 →</a>' : '<a class="btn" href="' + home + '">返回 →</a>';
   html += '<div class="pager">' + prev + next + '</div>';
 
   document.getElementById('page').innerHTML = html;

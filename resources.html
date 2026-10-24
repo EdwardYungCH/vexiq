@@ -21,7 +21,8 @@
       <li><a href="https://vexrobot.cn/competitions/level-up" target="_blank" rel="noopener">Game Manual 簡體中文譯本</a>：VEX 中國社區翻譯，用語和香港不同，版本可能落後</li>
       <li><a href="https://education.vex.com/stemlabs/zh-hant/iq" target="_blank" rel="noopener">STEM Labs 繁中版</a>：官方機器翻譯，看不懂切回英文</li>
       <li><a href="https://education.vex.com/stemlabs/iq/competition-101-vex-iq-level-up" target="_blank" rel="noopener">Competition 101: Level Up</a>：官方 7 節入門課，含 Hero Bot「Flop」</li>
-      <li><a href="https://builds.vex.com/" target="_blank" rel="noopener">builds.vex.com</a>：Hero Bot 和其他機器的砌機圖紙和零件清單</li>
+      <li><a href="https://instructions.online/?id=4063-2026-2027_viqrc_herobot_flop" target="_blank" rel="noopener">Flop 3D 砌機圖紙</a>／<a href="https://link.vex.com/docs/26-27/viqrc/hero-robot-instructions-pdf" target="_blank" rel="noopener">PDF</a>：今季 Hero Bot，需要第二代 Competition Kit</li>
+      <li><a href="https://www.vexrobotics.com/iq/downloads/build-instructions" target="_blank" rel="noopener">官方 IQ 圖紙庫</a>：BaseBot、Clawbot、各種機構（Fork、Plow、Wheel Grabber）和歷年 Hero Bot</li>
       <li><a href="https://codeiq.vex.com/" target="_blank" rel="noopener">VEXcode IQ（瀏覽器版）</a>：編程，Blocks 和 Python</li>
       <li><a href="https://vr.vex.com/" target="_blank" rel="noopener">VEXcode VR / Virtual Skills</a>：在瀏覽器用 3D 場地跑 Hero Bot 和自動程式</li>
       <li><a href="https://kb.vex.com/" target="_blank" rel="noopener">VEX Library（知識庫）</a>：摩打、感應器、齒輪、VEXcode 設定等文章</li>
@@ -49,6 +50,12 @@
     </ul>
   </section>
 
+  <section class="card" id="subs">
+    <h2>缺件替代表</h2>
+    <p class="small muted">零件不夠砌 Flop 時先看這裡。替代會影響結構，改了要告訴舊生。</p>
+    <div class="table-scroll"><table><thead><tr><th>缺</th><th>用甚麼代</th><th>影響</th></tr></thead><tbody id="subs-rows"></tbody></table></div>
+  </section>
+
   <section class="card" id="matchday">
     <h2>比賽日清單</h2>
     <ul class="clean" id="md-list"></ul>
@@ -70,9 +77,11 @@
 </main>
 <footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
 <script src="assets/app.js"></script>
+<script src="assets/guide-data.js"></script>
 <script>
 (function () {
   var items = ['機器（比賽版本，已檢查尺寸）', '控制器（已配對）', '電池 ×3 以上，全部充滿', '充電器', '牌照（隊號，前後各一）', '工程筆記（有日期和簽名）', '手提電腦（已裝 VEXcode，程式已上載）', 'USB 線', '工具：六角匙、鉗、剪刀', '後備零件：摩打 1 個、連接銷、樑、軸、齒輪、橡筋', '膠紙（只准標記摩打／主腦／控制器）', '場地量度用的軟尺', '隊服／校服、水、小食', '駕駛員名單和換手次序'];
+  document.getElementById('subs-rows').innerHTML = SUBS.map(function (r) { return '<tr><td>' + VQ.esc(r[0]) + '</td><td>' + VQ.esc(r[1]) + '</td><td class="small">' + VQ.esc(r[2]) + '</td></tr>'; }).join('');
   var ul = document.getElementById('md-list');
   ul.innerHTML = items.map(function (t, i) {
     var d = VQ.store.get('matchday.' + i, false);

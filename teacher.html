@@ -31,7 +31,7 @@
   <div id="teacher-track"></div>
 
   <section class="card" id="codes">
-    <h2>圖文自學課驗收碼</h2>
+    <h2>驗收碼（階段 0–5）</h2>
     <p class="small muted">學生檢查點全剔後，由舊生檢查並輸入驗收碼解鎖下一節。驗收碼只給總教練（舊生）和老師。要改碼改 assets/guide-data.js 的 GUIDE_CODES。</p>
     <div class="kv" id="code-list"></div>
   </section>
@@ -104,7 +104,7 @@
   });
   document.getElementById('teacher-track').innerHTML = tt + '</section>';
 
-  document.getElementById('code-list').innerHTML = Object.keys(GUIDE_CODES).map(function (k) { var g = null; GUIDE.forEach(function (x) { if (x.id === k) g = x; }); return '<b>' + k.toUpperCase() + '</b><span>' + GUIDE_CODES[k] + (g ? '　' + esc(g.title) : '　（製作中）') + '</span>'; }).join('');
+  document.getElementById('code-list').innerHTML = Object.keys(GUIDE_CODES).map(function (k) { var g = null; GUIDE.forEach(function (x) { if (x.id === k) g = x; }); return '<b>' + k + '</b><span>' + GUIDE_CODES[k] + (g ? '　' + esc(g.title) : '　（製作中）') + '</span>'; }).join('');
   document.getElementById('ai-prompt').value = [
     '你是「VEX 助教」，協助香港中學 VEX IQ 機械人隊的新生自學。學生用的教材是學校的 VEX IQ Level Up 自學網頁（2026–27 賽季）。',
     '',
@@ -112,12 +112,13 @@
     '1. 只用繁體中文（香港用語：摩打、機械人、程式），技術詞附英文，例如「連接銷（Connector Pin）」。',
     '2. 範圍限於 VEX IQ 零件、砌機、VEXcode IQ、Level Up 規則和比賽。其他話題請學生回到課程。',
     '3. 學生卡關時先問三條問題找出原因（做到哪一步？看到甚麼？試過甚麼？），再給一個最小提示，不直接給整個答案。學生再問才多給一步。',
+    '3a. 基本車是官方 Hero Bot「Flop」，砌法以官方圖紙為準，不要自己發明砌法。',
     '4. 涉及規則時引用條號（例如 R9 摩打最多 6 個、SG6 一次只可持有一個豆袋、GG11 換手在 0:35–0:25），並提醒以英文 Game Manual 原文為準。',
     '5. 安全問題（電池發脹、發熱、摩打冒煙）叫學生立即停用並找老師。',
     '6. 不代學生做決定（例如選哪種取物機構），而是叫他們用方案比較表測試後再決定。',
     '7. 每次回答不超過 150 字，用步驟列點。',
     '',
-    '關鍵數字：樑孔距 12.7 mm；摩打約 120 rpm；車輪數字是周長 mm；機器起始尺寸 279 × 508 × 381 mm；開賽後長度上限 610 mm；最多 6 摩打；Floor／L1／L2／L3／L4 = 1／3／6／12／16 分；L4 只收黃袋；Teamwork 60 秒；換手 0:35–0:25。'
+    '關鍵數字：第二代主腦開機按 ✓、關機按住 X；配對 Settings→Link，控制器按住 L上+L下再按兩下電源，閃綠 = 已連線；齒輪中心距 =（齒數A+齒數B）÷24 格；樑孔距 12.7 mm；車輪數字是周長 mm；機器起始尺寸 279 × 508 × 381 mm；開賽後長度上限 610 mm；最多 6 摩打；Floor／L1／L2／L3／L4 = 1／3／6／12／16 分；L4 只收黃袋；Teamwork 60 秒；換手 0:35–0:25。'
   ].join('\n');
   document.getElementById('copy-ai').addEventListener('click', function () { VQ.copyText(document.getElementById('ai-prompt').value, this); });
 
@@ -145,23 +146,23 @@
   });
 
   // 時間表
-  var sched = PREP.concat(LESSONS);
+  var sched = GUIDE.map(function (g) { return { id: g.id, title: g.title, time: g.time, deliver: [g.verify], teacher: g.sections.map(function (x) { return x.check; }), guide: true, stage: g.stage }; }).concat(LESSONS);
   document.getElementById('sched').innerHTML = sched.map(function (l) {
-    var lab = l.track === 'prep' ? '前置' : '第 ' + l.id + ' 節';
+    var lab = l.guide ? '階段 ' + l.stage : '比賽 ' + l.id;
     return '<tr><td>' + lab + '</td><td>' + esc(l.title) + '<br><span class="small muted">' + esc(l.time) + '</span></td>' +
       '<td><input type="text" data-k="teacher.date' + l.id + '" value="' + esc(S.get('teacher.date' + l.id, '')) + '" placeholder="例如 11/6"></td>' +
       '<td><input type="text" data-k="teacher.note' + l.id + '" value="' + esc(S.get('teacher.note' + l.id, '')) + '"></td></tr>';
   }).join('');
   document.getElementById('copy-sched').addEventListener('click', function () {
-    VQ.copyText('VEX IQ 課程時間表\n' + sched.map(function (l) { return (l.track === 'prep' ? '前置 ' : '第 ' + l.id + ' 節 ') + l.title + '：' + S.get('teacher.date' + l.id, '（未定）') + ' ' + S.get('teacher.note' + l.id, ''); }).join('\n'), this);
+    VQ.copyText('VEX IQ 課程時間表\n' + sched.map(function (l) { return (l.guide ? '階段 ' + l.stage + ' ' : '比賽課程 ' + l.id + ' ') + l.title + '：' + S.get('teacher.date' + l.id, '（未定）') + ' ' + S.get('teacher.note' + l.id, ''); }).join('\n'), this);
   });
 
   // 檢查重點
   document.getElementById('checks').innerHTML = sched.map(function (l) {
-    return '<section class="card"><h2><span class="num">' + (l.track === 'prep' ? 'P' + (PREP.indexOf(l) + 1) : l.id) + '</span>' + esc(l.title) + '</h2>' +
-      '<p class="small muted">交：' + l.deliver.map(esc).join('；') + '</p>' +
-      '<b>結束時檢查：</b><ul>' + l.teacher.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
-      '<a class="small" href="lesson.html?id=' + l.id + '">看學生版課堂頁 →</a></section>';
+    return '<section class="card"><h2><span class="num">' + (l.guide ? '階段 ' + l.stage : '比賽 ' + l.id) + '</span>' + esc(l.title) + '</h2>' +
+      '<p class="small muted">' + (l.guide ? '驗收：' : '交：') + l.deliver.map(esc).join('；') + '</p>' +
+      '<b>' + (l.guide ? '檢查點：' : '結束時檢查：') + '</b><ul>' + l.teacher.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+      '<a class="small" href="' + (l.guide ? 'guide' : 'lesson') + '.html?id=' + l.id + '">看學生版課堂頁 →</a></section>';
   }).join('');
 
   document.body.addEventListener('input', function (e) { var k = e.target.getAttribute('data-k'); if (k) { S.set(k, e.target.value); lacks(); } });

@@ -42,7 +42,7 @@ details summary { cursor: pointer; font-weight: 600; }
 <script>
 (function () {
   var S = VQ.store, esc = VQ.esc;
-  var id = new URLSearchParams(location.search).get('id') || 'g1';
+  var id = new URLSearchParams(location.search).get('id') || 's0-1';
   var G = null, gi = 0;
   GUIDE.forEach(function (g, i) { if (g.id === id) { G = g; gi = i; } });
   if (!G) { G = GUIDE[0]; gi = 0; id = G.id; }
@@ -61,10 +61,14 @@ details summary { cursor: pointer; font-weight: 600; }
   }
 
   var done = 0;
-  var html = '<span class="phase-tag">圖文自學課 ' + (gi + 1) + '/' + GUIDE.length + '</span><h1>' + esc(G.title) + '</h1>' +
+  var stageName = (STAGES[G.stage] || {}).name || '';
+  var inStage = GUIDE.filter(function (g) { return g.stage === G.stage; });
+  var html = '<span class="phase-tag">階段 ' + G.stage + '　' + esc(stageName) + '　' + (inStage.indexOf(G) + 1) + '/' + inStage.length + '</span><h1>' + esc(G.title) + '</h1>' +
     '<div class="kv"><b>時間</b><span>' + esc(G.time) + '</span><b>需要</b><span>' + esc(G.needs) + '</span></div>' +
     '<div class="progress-bar"><div id="pbar"></div></div><p class="muted" id="ptext"></p>' +
-    '<section class="card"><p>' + esc(G.intro) + '</p><div class="toc">' + G.sections.map(function (s, i) { return '<a href="#s' + i + '">' + esc(s.h) + '</a>'; }).join('') + '</div></section>';
+    '<section class="card"><p>' + esc(G.intro) + '</p>' +
+    (G.official ? '<div class="notice"><b>' + esc(G.official.label) + '：</b>' + esc(G.official.range) + '　<a href="' + esc(G.official.online) + '" target="_blank" rel="noopener">3D 版 ↗</a>　<a href="' + esc(G.official.pdf) + '" target="_blank" rel="noopener">PDF ↗</a><br><span class="small muted">照圖紙砌；本頁只講每段學到甚麼和怎樣檢查。需要 ' + esc(FLOP.kit) + '。</span></div>' : '') +
+    '<div class="toc">' + G.sections.map(function (s, i) { return '<a href="#s' + i + '">' + esc(s.h) + '</a>'; }).join('') + '</div></section>';
 
   G.sections.forEach(function (s, i) {
     var d = S.get(pfx + 'sec' + i, false); if (d) done++;
@@ -72,8 +76,8 @@ details summary { cursor: pointer; font-weight: 600; }
     html += '<section class="sec' + (d ? ' done' : '') + '" id="s' + i + '"><h2>' + esc(s.h) + '</h2>';
     if (figs.length) html += '<div class="figrow n' + figs.length + '">' + figs.map(function (f) { return fig(f); }).join('') + '</div>';
     html += photo(s.img);
-    html += '<ul>' + (s.body || []).map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') + '</ul>';
-    if (s.task) html += '<div class="task"><b>動手：</b>' + esc(s.task) + '</div>';
+    html += '<ul>' + (s.body || []).map(function (b) { return '<li>' + esc(b).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>') + '</li>'; }).join('') + '</ul>';
+    if (s.task) html += '<div class="task"><b>動手：</b>' + esc(s.task) + (s.link ? ' <a class="step-link" href="' + esc(s.link.href) + '"' + (/^https?:/.test(s.link.href) ? ' target="_blank" rel="noopener"' : '') + '>' + esc(s.link.label) + ' ↗</a>' : '') + '</div>';
     html += '<div class="chk"><input type="checkbox" id="c' + i + '" data-i="' + i + '"' + (d ? ' checked' : '') + '><label for="c' + i + '"><b>檢查點：</b>' + esc(s.check) + '</label></div>';
     if (s.wrong) html += '<div class="wrong"><b>做錯了會怎樣：</b><ul style="margin:4px 0 0">' + s.wrong.map(function (w) { return '<li>' + esc(w) + '</li>'; }).join('') + '</ul></div>';
     html += '</section>';
@@ -89,7 +93,7 @@ details summary { cursor: pointer; font-weight: 600; }
 
   var next = GUIDE[gi + 1];
   html += '<div class="pager">' + (gi > 0 ? '<a class="btn ghost" href="guide.html?id=' + GUIDE[gi - 1].id + '">← 上一節</a>' : '<a class="btn ghost" href="index.html">← 課程</a>') +
-    (next ? '<a class="btn' + (verified ? '' : ' locked') + '" id="nextbtn" href="guide.html?id=' + next.id + '">' + (verified ? '下一節 →' : '驗收後解鎖下一節') + '</a>' : '<a class="btn" href="index.html">返回課程 →</a>') + '</div>';
+    (next ? '<a class="btn' + (verified ? '' : ' locked') + '" id="nextbtn" href="guide.html?id=' + next.id + '">' + (verified ? '下一節 →' : '驗收後解鎖下一節') + '</a>' : '<a class="btn' + (verified ? '' : ' locked') + '" href="lesson.html?id=1">' + (verified ? '進入階段 6 比賽設計 →' : '驗收後解鎖') + '</a>') + '</div>';
 
   document.getElementById('page').innerHTML = html;
 
