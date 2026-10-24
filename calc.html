@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>設計計算器 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <h1>設計計算器</h1>
+  <p class="muted">砌之前先用數字檢查：速度、尺寸、摩打、高度。改一個數，結果即時更新。填好後按「複製規格摘要」貼入筆記。</p>
+
+  <div class="grid two">
+    <section class="card">
+      <h2>底盤與速度</h2>
+      <label class="field">底盤摩打數<select id="md"><option>2</option><option>4</option></select></label>
+      <label class="field">摩打轉速 rpm<span>VEX IQ Smart Motor 約 120 rpm；可改</span><input type="number" id="rpm" value="120"></label>
+      <label class="field">齒比：摩打齒輪齒數 → 車輪齒輪齒數<span>直驅填 1 和 1。例如 36 → 12 即 3 倍速</span>
+        <div style="display:flex;gap:8px;align-items:center"><input type="number" id="g1" value="1"><span>→</span><input type="number" id="g2" value="1"></div></label>
+      <label class="field">車輪<select id="wheel">
+        <option value="160">160 mm 周長（約 51 mm 直徑）</option>
+        <option value="200" selected>200 mm 周長（約 64 mm 直徑）</option>
+        <option value="250">250 mm 周長（約 80 mm 直徑）</option>
+        <option value="custom">自訂周長</option></select></label>
+      <label class="field" id="wc-wrap" style="display:none">車輪周長 mm<input type="number" id="wc" value="200"></label>
+    </section>
+
+    <section class="card">
+      <h2>尺寸與模組</h2>
+      <label class="field">闊度 mm<input type="number" id="w" value="250"></label>
+      <label class="field">長度 mm（收合）<input type="number" id="l" value="400"></label>
+      <label class="field">長度 mm（伸出放置時）<input type="number" id="le" value="500"></label>
+      <label class="field">高度 mm（收合）<input type="number" id="h" value="300"></label>
+      <label class="field">取物摩打數<input type="number" id="mi" value="1"></label>
+      <label class="field">升降摩打數<input type="number" id="ml" value="1"></label>
+      <label class="field">升降最高（放置點離地）mm<input type="number" id="lift" value="200"></label>
+      <label class="field">主攻 goal<select id="goal">
+        <option value="0">Floor Goal（1 分）</option>
+        <option value="64">L1（3 分）</option>
+        <option value="127" selected>L2（6 分）</option>
+        <option value="203">L3（12 分）</option>
+        <option value="610">L4（16 分，只收黃袋）</option></select></label>
+      <label class="field">實場量到的橫樑底高度 mm<span>第 1 節量的數；未量先用參考值 147</span><input type="number" id="beam" value="147"></label>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>結果</h2>
+    <div id="results"></div>
+    <div class="btnrow"><button class="btn yellow" id="copy">複製規格摘要</button></div>
+  </section>
+
+  <section class="notice">目標高度用參考值（L1 約 64、L2 約 127、L3 約 203、L4 約 610 mm），請用第 1 節實場量度的數字自行加 5 cm 安全餘量。速度是理論值，實際約打八折。</section>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var ids = ['md', 'rpm', 'g1', 'g2', 'wheel', 'wc', 'w', 'l', 'le', 'h', 'mi', 'ml', 'lift', 'goal', 'beam'];
+  var KEY = 'vexiq-calc';
+  function v(id) { return parseFloat(document.getElementById(id).value) || 0; }
+  function row(cls, text) { return '<div class="result ' + cls + '">' + text + '</div>'; }
+  var lastSummary = '';
+
+  function calc() {
+    var wheel = document.getElementById('wheel').value;
+    document.getElementById('wc-wrap').style.display = wheel === 'custom' ? 'block' : 'none';
+    var circ = wheel === 'custom' ? v('wc') : parseFloat(wheel);
+    var ratio = v('g2') > 0 ? v('g1') / v('g2') : 1;
+    var wheelRpm = v('rpm') * ratio;
+    var speed = wheelRpm * circ / 60; // mm/s
+    var cross = speed > 0 ? (2440 / speed).toFixed(1) : '—';
+    var out = '';
+    var sum = [];
+
+    // 速度
+    var sp = '輪速 ' + Math.round(wheelRpm) + ' rpm，理論速度 <b>' + Math.round(speed) + ' mm/s</b>，橫越場地長邊（2.44 m）約 ' + cross + ' 秒。';
+    if (ratio > 2) sp += ' 齒比超過 2 倍速，力會明顯減少，載重和過斜條時容易停轉。';
+    else if (ratio > 1.3) sp += ' 加速齒比，建議 4 個底盤摩打。';
+    out += row(ratio > 2 ? 'warn' : 'ok', sp);
+    sum.push('速度 ' + Math.round(speed) + ' mm/s（' + v('md') + ' 摩打，齒比 ' + v('g1') + ':' + v('g2') + '，輪周長 ' + circ + ' mm）');
+
+    // 尺寸
+    var W = v('w'), L = v('l'), LE = v('le'), H = v('h');
+    var okW = W <= 279.4, okL = L <= 508, okLE = LE <= 609.6, okH = H <= 381;
+    out += row(okW ? 'ok' : 'bad', '闊度 ' + W + ' mm ' + (okW ? '✔ 合格（≤ 279.4）' : '✘ 超過 279.4 mm，過不了檢錄'));
+    out += row(okL ? 'ok' : 'bad', '收合長度 ' + L + ' mm ' + (okL ? '✔ 合格（≤ 508）' : '✘ 超過 508 mm'));
+    out += row(okLE ? 'ok' : 'bad', '伸出長度 ' + LE + ' mm ' + (okLE ? '✔ 合格（≤ 609.6）' : '✘ 開賽後長度上限 609.6 mm'));
+    out += row(okH ? 'ok' : 'bad', '收合高度 ' + H + ' mm ' + (okH ? '✔ 合格（≤ 381）' : '✘ 起始高度上限 381 mm'));
+    var beam = v('beam');
+    out += row(H < beam ? 'ok' : 'warn', H < beam ? '高度低於橫樑（' + beam + ' mm），可以鑽過橫樑走捷徑。' : '高度 ≥ 橫樑（' + beam + ' mm），不能鑽橫樑，要繞路或穿柱間空隙（空隙闊度要實場量）。');
+    sum.push('尺寸 ' + W + '×' + L + '×' + H + ' mm，伸出 ' + LE + ' mm' + (H < beam ? '（可鑽橫樑）' : '（不可鑽橫樑）'));
+
+    // 摩打
+    var motors = v('md') + v('mi') + v('ml');
+    out += row(motors <= 6 ? 'ok' : 'bad', '摩打總數 ' + motors + '（底盤 ' + v('md') + ' + 取物 ' + v('mi') + ' + 升降 ' + v('ml') + '）' + (motors <= 6 ? ' ✔ 合格（≤ 6）' : ' ✘ 超過 6 個'));
+    sum.push('摩打 底盤 ' + v('md') + ' 取物 ' + v('mi') + ' 升降 ' + v('ml') + '（共 ' + motors + '）');
+
+    // 高度
+    var goalSel = document.getElementById('goal');
+    var need = v('goal') + 50, lift = v('lift');
+    var goalName = goalSel.options[goalSel.selectedIndex].text;
+    if (v('goal') === 0) out += row('ok', '主攻 Floor Goal，不需要升降，但取物模組要能放下豆袋。');
+    else out += row(lift >= need ? 'ok' : 'bad', '主攻 ' + goalName + '：需要放置高度約 ' + need + ' mm（參考值 + 50 mm 餘量），你的升降 ' + lift + ' mm ' + (lift >= need ? '✔ 足夠' : '✘ 不夠，差 ' + (need - lift) + ' mm'));
+    if (v('goal') === 610) out += row('warn', 'L4 只收黃色豆袋，全場只有 6 個黃袋，而且離地約 610 mm。多數隊用投擲或很長的升降，第一版不建議主攻。');
+    sum.push('主攻 ' + goalName + '，升降 ' + lift + ' mm');
+
+    document.getElementById('results').innerHTML = out;
+    lastSummary = sum.join('\n');
+    try { var o = {}; ids.forEach(function (id) { o[id] = document.getElementById(id).value; }); localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  try { var s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s) ids.forEach(function (id) { if (s[id] != null) document.getElementById(id).value = s[id]; }); } catch (e) {}
+  ids.forEach(function (id) { document.getElementById(id).addEventListener('input', calc); document.getElementById(id).addEventListener('change', calc); });
+  document.getElementById('copy').addEventListener('click', function () { VQ.copyText('機器規格摘要（計算器）\n' + lastSummary, this); });
+  calc();
+})();
+</script>
+</body>
+</html>

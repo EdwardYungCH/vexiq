@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>比賽模擬器 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <h1>Level Up 比賽模擬器</h1>
+  <p class="muted">用來試策略和路線：走長路還是鑽橫樑？主攻哪個 goal？60 秒做到幾多次？這是簡化版，不能代替實機測試。</p>
+
+  <section class="card">
+    <h2>機器設定（按規格表填，單位 mm）</h2>
+    <div class="sim-config">
+      <label>模式<select id="mode"><option value="skills">Skills（單機）</option><option value="teamwork">Teamwork</option></select></label>
+      <label>隊伍<select id="team"><option value="red">紅隊（上方起步）</option><option value="blue">藍隊（下方起步）</option></select></label>
+      <label>闊度 mm（≤ 279）<input type="number" id="cw" value="250"></label>
+      <label>長度 mm（≤ 508）<input type="number" id="cl" value="400"></label>
+      <label>高度 mm（< 147 可鑽橫樑）<input type="number" id="ch" value="300"></label>
+      <label>放置伸出距離 mm<input type="number" id="creach" value="150"></label>
+      <label>升降最高 mm<input type="number" id="clift" value="200"></label>
+      <label>速度 mm/s<input type="number" id="cspeed" value="400"></label>
+      <label>轉向 °/s<input type="number" id="cturn" value="150"></label>
+    </div>
+    <div class="btnrow">
+      <button class="btn" id="btn-apply">套用並重新開始</button>
+      <label class="small" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="show-path" checked> 顯示路線</label>
+    </div>
+  </section>
+
+  <div class="sim-hud">
+    <div class="box">時間 <b id="hud-time">60.0</b></div>
+    <div class="box">分數 <b id="hud-score">0</b></div>
+    <div class="box">得分次數 <b id="hud-cycles">0</b></div>
+    <div class="box">手上 <b id="hud-bag">黃袋</b></div>
+    <div class="box alert" id="hud-switch" style="display:none">換手！</div>
+    <div class="box alert" id="hud-stall" style="display:none">卡住</div>
+  </div>
+
+  <div class="sim-wrap"><canvas id="field"></canvas></div>
+
+  <div class="sim-controls">
+    <div class="pad">
+      <button class="blank" disabled></button><button data-k="f">▲</button><button class="blank" disabled></button>
+      <button data-k="l">◀</button><button class="blank" disabled></button><button data-k="r">▶</button>
+      <button class="blank" disabled></button><button data-k="b">▼</button><button class="blank" disabled></button>
+    </div>
+    <div>
+      <div class="actions">
+        <button class="pick" id="btn-pick">拾</button>
+        <span id="loaders" style="display:contents"></span>
+      </div>
+      <div class="btnrow"><button class="btn ghost sm" id="btn-reset">重新開始</button></div>
+      <p class="small muted" style="margin-top:8px">電腦：方向鍵或 WASD 行車，空白鍵拾／放，L 入袋（Teamwork 藍隊用 K）。手機：按住箭嘴。黃色小圓點是放置點，要對準 goal 才放。</p>
+    </div>
+  </div>
+
+  <section class="card" id="summary" style="display:none"></section>
+
+  <section class="card">
+    <h2>路線記錄</h2>
+    <div class="log" id="log"></div>
+    <p class="small muted" style="margin-top:8px">每段前進距離和轉向角度會自動記下，寫自動程式時可以直接參考。</p>
+  </section>
+
+  <section class="notice">
+    <b>模擬器的限制：</b>場地尺寸由 Game Manual 附錄 A 抄錄（第三方整理），橫樑高度、空隙闊度請到實場核對；豆袋不會被推動或跌落；放置只看「放置點」是否在 goal 範圍和升降高度是否足夠。用它來比較策略，不是用來證明機構可行。
+  </section>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
+<script src="assets/app.js"></script>
+<script src="assets/sim.js"></script>
+</body>
+</html>

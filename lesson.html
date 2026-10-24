@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>課堂 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main id="page"></main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。場地尺寸的參考值必須到實場核對。</footer>
+<script src="assets/app.js"></script>
+<script src="assets/lessons.js"></script>
+<script src="assets/templates.js"></script>
+<script>
+(function () {
+  var n = parseInt(new URLSearchParams(location.search).get('n'), 10) || 1;
+  var L = null;
+  LESSONS.forEach(function (l) { if (l.id === n) L = l; });
+  if (!L) { L = LESSONS[0]; n = L.id; }
+  document.title = '第 ' + n + ' 節 ' + L.title + ' · VEX IQ 自學';
+  var S = VQ.store, esc = VQ.esc;
+  var pfx = 'lesson' + n + '.';
+
+  function li(arr) { return arr.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join(''); }
+
+  var html = '';
+  html += '<div class="lesson-head"><span class="phase-tag">' + L.phase + '. ' + esc(L.phaseName) + '</span><span class="muted">' + esc(L.time) + '</span></div>';
+  html += '<h1>第 ' + n + ' 節　' + esc(L.title) + '</h1>';
+  html += '<div class="progress-bar"><div id="pbar"></div></div><p class="muted" id="ptext"></p>';
+
+  html += '<section class="card"><h2>本節目標</h2><ul>' + li(L.goal) + '</ul></section>';
+
+  html += '<section class="card"><h2>做甚麼（做完一項剔一項）</h2><ul class="clean" id="steps">';
+  L.steps.forEach(function (s, i) {
+    var done = S.get(pfx + 'step' + i, false);
+    html += '<li class="check' + (done ? ' done' : '') + '"><input type="checkbox" id="st' + i + '" data-i="' + i + '"' + (done ? ' checked' : '') + '>' +
+      '<label for="st' + i + '">' + esc(s.t) + (s.link ? ' <a class="step-link" href="' + esc(s.link.href) + '"' + (/^https?:/.test(s.link.href) ? ' target="_blank" rel="noopener"' : '') + '>' + esc(s.link.label) + ' ↗</a>' : '') + '</label></li>';
+  });
+  html += '</ul></section>';
+
+  if (L.tips && L.tips.length) {
+    html += '<section class="notice">' + L.tips.map(function (t) { return '<div>• ' + esc(t) + '</div>'; }).join('') + '</section>';
+  }
+
+  html += '<section class="card"><h2>交甚麼（寫入工程筆記）</h2><ul>' + li(L.deliver) + '</ul></section>';
+
+  if (L.template && TEMPLATES[L.template]) {
+    html += '<section class="card" id="tpl"><h2>' + esc(TEMPLATES[L.template].title) + '</h2><p class="muted">' + esc(TEMPLATES[L.template].desc) + '</p>' +
+      TEMPLATES.render(L.template, pfx + 'tpl.') + '<div class="btnrow"><button class="btn yellow" id="copy-tpl">複製成文字，貼入筆記</button></div></section>';
+  }
+
+  html += '<section class="card"><h2>本節反思（一兩句就夠）</h2><textarea id="reflect" placeholder="今日最難的是……我們解決的方法是……下次想改……">' + esc(S.get(pfx + 'reflect', '')) + '</textarea></section>';
+
+  var prev = n > 1 ? '<a class="btn ghost" href="lesson.html?n=' + (n - 1) + '">← 第 ' + (n - 1) + ' 節</a>' : '<a class="btn ghost" href="index.html">← 課程</a>';
+  var next = n < LESSONS.length ? '<a class="btn" href="lesson.html?n=' + (n + 1) + '">第 ' + (n + 1) + ' 節 →</a>' : '<a class="btn" href="index.html">回到課程 →</a>';
+  html += '<div class="pager">' + prev + next + '</div>';
+
+  document.getElementById('page').innerHTML = html;
+
+  function updateProgress() {
+    var pct = VQ.lessonProgress(L);
+    document.getElementById('pbar').style.width = pct + '%';
+    document.getElementById('ptext').textContent = pct === 100 ? '本節完成' : '本節進度 ' + pct + '%';
+  }
+  updateProgress();
+
+  document.getElementById('steps').addEventListener('change', function (e) {
+    if (e.target.type !== 'checkbox') return;
+    var i = e.target.getAttribute('data-i');
+    S.set(pfx + 'step' + i, e.target.checked);
+    e.target.closest('li').classList.toggle('done', e.target.checked);
+    updateProgress();
+  });
+
+  document.getElementById('reflect').addEventListener('input', function () { S.set(pfx + 'reflect', this.value); });
+
+  if (L.template && TEMPLATES[L.template]) {
+    TEMPLATES.bind(document.getElementById('tpl'), pfx + 'tpl.');
+    document.getElementById('copy-tpl').addEventListener('click', function () {
+      var text = '第 ' + n + ' 節 ' + L.title + ' — ' + TEMPLATES[L.template].title + '\n' + TEMPLATES.toText(L.template, pfx + 'tpl.');
+      var r = S.get(pfx + 'reflect', '');
+      if (r) text += '\n反思：' + r;
+      VQ.copyText(text, this);
+    });
+  }
+})();
+</script>
+</body>
+</html>

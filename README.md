@@ -1,1 +1,34 @@
-# vexiq
+# VEX IQ Level Up 自學課程（2026–27 賽季）
+
+學校 VEX IQ 隊的自學網頁：十節課由規則到比賽，舊生帶、新生做，附比賽模擬器、設計計算器、計分器和計時器。純靜態網頁，手機和電腦都可用，不需要伺服器。
+
+## 頁面
+
+| 頁 | 用途 |
+|---|---|
+| `index.html` | 課程地圖、隊規、整體進度、進度匯出 |
+| `lesson.html?n=1` … `n=10` | 十節課堂：目標、做甚麼（剔選）、交甚麼、可填的範本（規則卡／規格表／方案比較表／測試表／迭代表）、反思 |
+| `sim.html` | Level Up 2D 比賽模擬器：駕駛、拾放、計分、60 秒計時、換手提示、路線記錄 |
+| `calc.html` | 設計計算器：速度（齒比、輪徑）、尺寸檢查、摩打上限、升降高度 |
+| `tools.html` | 計分器（1／3／6／12／16）和 60 秒計時器（35／25 秒換手提示） |
+| `resources.html` | 官方資源、香港比賽、砌機參考、比賽日清單和流程 |
+| `teacher.html` | 老師頁（不在導航出現）：每節檢查重點、時間表、常見問題 |
+
+## 課程結構
+
+A 分析與規格（第 1–2 節）→ B 底盤（3–4）→ C 功能模組（5–7）→ D 整合與程式（8–9）→ E 迭代與比賽（10，持續）
+
+內容在 `assets/lessons.js`，範本在 `assets/templates.js`，改這兩個檔就可以改課程。
+
+## 部署
+
+GitHub Pages：Settings → Pages → Source 選 `main` 分支根目錄，網址為 `https://edwardyungch.github.io/vexiq/`。
+或接 Cloudflare Pages，Build command 留空，Output directory 填 `/`。
+
+## 規則依據
+
+Level Up Game Manual v2.1（2026-10-08）。場地尺寸參考值由附錄 A 抄錄（參考 [thejake/vexiq-levelup-sim](https://github.com/thejake/vexiq-levelup-sim)，MIT），學生必須到實場核對。Game Manual 更新時：改 `assets/templates.js` 的規則卡答案、`tools.html` 的分數表、`assets/sim.js` 的場地常數。
+
+## 本機測試
+
+直接開 `index.html` 即可；或 `python -m http.server 8000` 後開 `http://localhost:8000`。

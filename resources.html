@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>資源與比賽日 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <h1>資源與比賽日</h1>
+
+  <section class="card">
+    <h2>官方資源（全部免費）</h2>
+    <ul>
+      <li><a href="https://www.vexrobotics.com/iq/competition/viqc-current-game" target="_blank" rel="noopener">Level Up 官方遊戲頁</a>：介紹片、計分、Game Manual 連結和版本號</li>
+      <li><a href="https://link.vex.com/docs/26-27/viqrc/game-manual" target="_blank" rel="noopener">Game Manual PDF</a>：規則原文，比賽前看版本是否更新</li>
+      <li><a href="https://education.vex.com/stemlabs/iq/competition-101-vex-iq-level-up" target="_blank" rel="noopener">Competition 101: Level Up</a>：官方 7 節入門課，含 Hero Bot「Flop」</li>
+      <li><a href="https://builds.vex.com/" target="_blank" rel="noopener">builds.vex.com</a>：Hero Bot 和其他機器的砌機圖紙和零件清單</li>
+      <li><a href="https://codeiq.vex.com/" target="_blank" rel="noopener">VEXcode IQ（瀏覽器版）</a>：編程，Blocks 和 Python</li>
+      <li><a href="https://vr.vex.com/" target="_blank" rel="noopener">VEXcode VR / Virtual Skills</a>：在瀏覽器用 3D 場地跑 Hero Bot 和自動程式</li>
+      <li><a href="https://kb.vex.com/" target="_blank" rel="noopener">VEX Library（知識庫）</a>：摩打、感應器、齒輪、VEXcode 設定等文章</li>
+      <li><a href="https://kb.vex.com/hc/en-us/articles/39835904038804-Strategies-for-Introducing-a-VEX-IQ-Robotics-Competition-Game" target="_blank" rel="noopener">官方：分階段介紹 Level Up 的方法</a>：先 Floor Goal，再金字塔，再 L4</li>
+      <li><a href="https://www.robotevents.com/" target="_blank" rel="noopener">RobotEvents</a>：隊伍註冊、比賽報名、賽程和成績</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>香港比賽</h2>
+    <ul>
+      <li>香港區 VEX IQ 預賽通常由亞洲機器人聯盟（ARL）／香港聯校科技教育協會（JSTEA）在 11 至 12 月於各中小學舉辦，在 <a href="https://www.robotevents.com/" target="_blank" rel="noopener">RobotEvents</a> 選 Hong Kong 地區搜尋。</li>
+      <li>香港少年工程挑戰賽（約 2 月，科學園）是世界賽香港區選拔賽，一般要先參加過至少一場預賽才可報名。</li>
+      <li>每場比賽通常有三項：機械人聯賽（Teamwork）、機械人技能賽（Skills，駕駛＋自動）、工程筆記評審。</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>砌機與設計參考</h2>
+    <ul>
+      <li>底盤：先方正對稱，再談齒比。直驅 1:1 最穩；加速齒比要配 4 個摩打。</li>
+      <li>升降：四連桿最易砌；直升導軌最準；剪叉最重。升降摩打配減速齒比（例如 12:60）才停得住。</li>
+      <li>取物：豆袋是軟的，滾筒 intake 一般最穩定；夾爪最易砌但要對準。</li>
+      <li>Hero Bot「Flop」的砌法本身就示範了底盤 → 模組的結構，新生先照砌一次最快上手。</li>
+    </ul>
+  </section>
+
+  <section class="card" id="matchday">
+    <h2>比賽日清單</h2>
+    <ul class="clean" id="md-list"></ul>
+    <div class="btnrow"><button class="btn sm ghost" id="md-reset">清除剔選</button></div>
+  </section>
+
+  <section class="card">
+    <h2>比賽日流程（一般）</h2>
+    <ol>
+      <li>報到、領牌照和賽程表。</li>
+      <li>檢錄（Inspection）：尺寸框、摩打數、零件合規、牌照。檢錄不過不可以出場，所以要早到。</li>
+      <li>駕駛員會議：聽規則補充。</li>
+      <li>Teamwork 資格賽（通常 6 至 8 局，每局配不同隊友）；Skills 賽按大會時段。</li>
+      <li>評審面試：帶工程筆記，全隊一齊，每人都要答到問題。</li>
+      <li>決賽和頒獎。</li>
+    </ol>
+    <p class="small muted">每局之間：換電池、檢查線材、和下一局隊友商量分工（誰入哪個 goal、誰負責入袋）。</p>
+  </section>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  var items = ['機器（比賽版本，已檢查尺寸）', '控制器（已配對）', '電池 ×3 以上，全部充滿', '充電器', '牌照（隊號，前後各一）', '工程筆記（有日期和簽名）', '手提電腦（已裝 VEXcode，程式已上載）', 'USB 線', '工具：六角匙、鉗、剪刀', '後備零件：摩打 1 個、連接銷、樑、軸、齒輪、橡筋', '膠紙（只准標記摩打／主腦／控制器）', '場地量度用的軟尺', '隊服／校服、水、小食', '駕駛員名單和換手次序'];
+  var ul = document.getElementById('md-list');
+  ul.innerHTML = items.map(function (t, i) {
+    var d = VQ.store.get('matchday.' + i, false);
+    return '<li class="check' + (d ? ' done' : '') + '"><input type="checkbox" id="md' + i + '" data-i="' + i + '"' + (d ? ' checked' : '') + '><label for="md' + i + '">' + VQ.esc(t) + '</label></li>';
+  }).join('');
+  ul.addEventListener('change', function (e) {
+    if (e.target.type !== 'checkbox') return;
+    VQ.store.set('matchday.' + e.target.getAttribute('data-i'), e.target.checked);
+    e.target.closest('li').classList.toggle('done', e.target.checked);
+  });
+  document.getElementById('md-reset').addEventListener('click', function () {
+    items.forEach(function (_, i) { VQ.store.set('matchday.' + i, false); });
+    ul.querySelectorAll('input').forEach(function (c) { c.checked = false; c.closest('li').classList.remove('done'); });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VEX IQ Level Up 自學課程</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <section class="hero">
+    <span class="tag">2026–27 賽季 · Level Up</span>
+    <h1>VEX IQ 機械人隊 自學課程</h1>
+    <p>十節課，由規則到比賽。舊生帶，新生做，每節有清楚的「做甚麼」和「交甚麼」。</p>
+  </section>
+
+  <section class="card">
+    <h2>整體進度</h2>
+    <div class="progress-bar"><div id="overall"></div></div>
+    <p class="muted" id="overall-text">尚未開始</p>
+    <div class="btnrow">
+      <button class="btn sm" id="export">複製我的進度文字</button>
+      <button class="btn sm ghost" id="reset">清除進度</button>
+    </div>
+    <p class="small muted" style="margin-top:8px">進度只存在這部手機／電腦的瀏覽器。每節完成後按「複製我的進度文字」，貼給老師或貼入工程筆記。</p>
+  </section>
+
+  <section class="card">
+    <h2>隊規（開季第一節一齊訂，可改）</h2>
+    <ul>
+      <li>每節準時到，先睇課堂頁的「做甚麼」，再開工。</li>
+      <li>舊生做教練，不是做全部：教新生砌，不代砌。</li>
+      <li>每次改動只改一樣，改完要測、要記錄。</li>
+      <li>工程筆記每頁寫日期、簽名，當日事當日記。</li>
+      <li>離開前零件歸位，電池放回充電。</li>
+    </ul>
+  </section>
+
+  <div id="map"></div>
+
+  <section class="card">
+    <h2>工具</h2>
+    <div class="grid three">
+      <a class="lesson-link" href="sim.html"><div class="n">▶</div><div class="t">比賽模擬器<small>先在手機試路線和策略</small></div></a>
+      <a class="lesson-link" href="calc.html"><div class="n">∑</div><div class="t">設計計算器<small>速度、尺寸、摩打、高度檢查</small></div></a>
+      <a class="lesson-link" href="tools.html"><div class="n">⏱</div><div class="t">計分器＋計時器<small>練習時用，有換手提示</small></div></a>
+    </div>
+  </section>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。場地尺寸的參考值必須到實場核對。</footer>
+<script src="assets/app.js"></script>
+<script src="assets/lessons.js"></script>
+<script>
+(function () {
+  var map = document.getElementById('map');
+  var phases = {};
+  LESSONS.forEach(function (l) { (phases[l.phase] = phases[l.phase] || []).push(l); });
+  var html = '';
+  var total = 0, count = 0;
+  Object.keys(phases).forEach(function (p) {
+    html += '<section class="phase"><h2>' + p + '. ' + PHASES[p].name + '</h2><p class="muted">' + PHASES[p].desc + '</p>';
+    phases[p].forEach(function (l) {
+      var pct = VQ.lessonProgress(l);
+      total += pct; count++;
+      html += '<a class="lesson-link' + (pct === 100 ? ' done' : '') + '" href="lesson.html?n=' + l.id + '">' +
+        '<div class="n">' + l.id + '</div>' +
+        '<div class="t">' + VQ.esc(l.title) + '<small>' + VQ.esc(l.time) + '</small></div>' +
+        '<div class="pct">' + (pct === 100 ? '完成' : pct + '%') + '</div></a>';
+    });
+    html += '</section>';
+  });
+  map.innerHTML = html;
+  var overall = count ? Math.round(total / count) : 0;
+  document.getElementById('overall').style.width = overall + '%';
+  document.getElementById('overall-text').textContent = overall === 0 ? '尚未開始' : '已完成 ' + overall + '%';
+
+  document.getElementById('export').addEventListener('click', function () {
+    var lines = ['VEX IQ 自學進度 ' + new Date().toLocaleDateString('zh-HK')];
+    LESSONS.forEach(function (l) {
+      var pct = VQ.lessonProgress(l);
+      var doneSteps = [];
+      l.steps.forEach(function (s, i) { if (VQ.store.get('lesson' + l.id + '.step' + i, false)) doneSteps.push(i + 1); });
+      lines.push('第 ' + l.id + ' 節 ' + l.title + '：' + pct + '%' + (doneSteps.length ? '（已完成步驟 ' + doneSteps.join(',') + '）' : ''));
+    });
+    VQ.copyText(lines.join('\n'), this);
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    if (confirm('清除這部裝置上的全部進度和填寫內容？')) { VQ.store.clear(); location.reload(); }
+  });
+})();
+</script>
+</body>
+</html>

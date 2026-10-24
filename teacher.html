@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>老師頁 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <h1>老師頁</h1>
+  <p class="muted">這頁不在導航出現，用網址直入。每節只需露面兩次：開始 5 分鐘（點名、講今日交甚麼）和結束 5 分鐘（看下面檢查重點、拍照）。</p>
+
+  <section class="card">
+    <h2>每節固定做法</h2>
+    <ul>
+      <li><b>開始 5 分鐘：</b>點名；叫總教練（舊生）講今日「做甚麼、交甚麼」；確認電池已充。</li>
+      <li><b>中段：</b>不用在場。有問題由總教練先處理，處理不到才記下留到結束時問。</li>
+      <li><b>結束 5 分鐘：</b>按下面該節的檢查重點看一次；拍一張整隊和機器的相；叫學生按「複製我的進度文字」傳給你。</li>
+      <li><b>每兩週：</b>看工程筆記有沒有日期和簽名；看迭代表有沒有前後數據。</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>建議時間表</h2>
+    <p class="small muted">按每週一節填。比賽日期由 RobotEvents 查到後倒推：第 8 節之後就可以出場，第 9、10 節可以和比賽交錯進行。</p>
+    <div class="table-scroll"><table>
+      <thead><tr><th>節</th><th>內容</th><th>日期</th><th>備註</th></tr></thead>
+      <tbody id="sched"></tbody>
+    </table></div>
+    <div class="btnrow"><button class="btn sm" id="copy-sched">複製時間表</button></div>
+  </section>
+
+  <div id="checks"></div>
+
+  <section class="card">
+    <h2>常見問題</h2>
+    <ul>
+      <li><b>零件不夠砌兩隊？</b>先一隊 4 至 6 人，新生輪流做駕駛員和記錄；第 7 節前整理出缺件清單，走學校採購。</li>
+      <li><b>學生只想砌不想記錄？</b>規定「沒有測試表不可以改機」。表格在網頁上，填完一按就複製。</li>
+      <li><b>舊生主導太多？</b>舊生只可以「指」不可以「砌」；每個模組指定一個新生做負責人。</li>
+      <li><b>Game Manual 更新了？</b>到官方遊戲頁看版本號，本網頁以 v2.1（2026-10-08）為準；若有改動，先改規則卡的答案（assets/templates.js）和計分器。</li>
+      <li><b>場地尺寸和網頁參考值不同？</b>以實場為準。學生第 1 節量到的數字才是設計依據。</li>
+    </ul>
+  </section>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
+<script src="assets/app.js"></script>
+<script src="assets/lessons.js"></script>
+<script>
+(function () {
+  var S = VQ.store, esc = VQ.esc;
+  var tb = document.getElementById('sched');
+  tb.innerHTML = LESSONS.map(function (l) {
+    return '<tr><td>' + l.id + '</td><td>' + esc(l.title) + '<br><span class="small muted">' + esc(l.time) + '</span></td>' +
+      '<td><input type="text" data-k="teacher.date' + l.id + '" value="' + esc(S.get('teacher.date' + l.id, '')) + '" placeholder="例如 11/6"></td>' +
+      '<td><input type="text" data-k="teacher.note' + l.id + '" value="' + esc(S.get('teacher.note' + l.id, '')) + '"></td></tr>';
+  }).join('');
+  tb.addEventListener('input', function (e) { var k = e.target.getAttribute('data-k'); if (k) S.set(k, e.target.value); });
+  document.getElementById('copy-sched').addEventListener('click', function () {
+    VQ.copyText('VEX IQ 課程時間表\n' + LESSONS.map(function (l) { return '第 ' + l.id + ' 節 ' + l.title + '：' + S.get('teacher.date' + l.id, '（未定）') + ' ' + S.get('teacher.note' + l.id, ''); }).join('\n'), this);
+  });
+
+  document.getElementById('checks').innerHTML = LESSONS.map(function (l) {
+    return '<section class="card"><h2><span class="num">' + l.id + '</span>' + esc(l.title) + '</h2>' +
+      '<p class="small muted">交：' + l.deliver.map(esc).join('；') + '</p>' +
+      '<b>結束時檢查：</b><ul>' + l.teacher.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+      '<a class="small" href="lesson.html?n=' + l.id + '">看學生版課堂頁 →</a></section>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>計分器與計時器 · VEX IQ Level Up 自學</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header id="topbar" class="topbar"></header>
+<main>
+  <h1>計分器與計時器</h1>
+
+  <section class="card">
+    <h2>60 秒計時器（有換手提示）</h2>
+    <div class="big-timer" id="timer">60.0</div>
+    <p class="muted" id="timer-msg" style="text-align:center">按開始。餘下 35 至 25 秒會響聲並變色，提示換手。</p>
+    <div class="btnrow" style="justify-content:center">
+      <button class="btn yellow" id="t-start">開始</button>
+      <button class="btn ghost" id="t-reset">重設</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>計分器（Level Up v2.1）</h2>
+    <div id="rows"></div>
+    <div class="total" id="total">0 分</div>
+    <div class="btnrow">
+      <button class="btn sm ghost" id="s-reset">清零</button>
+      <button class="btn sm" id="s-copy">複製分數</button>
+    </div>
+    <p class="small muted" style="margin-top:8px">黃袋在 Floor 和 L1–L3 百搭；L4 只收黃袋。豆袋要完全在 Floor Goal 內，或由 goal 表面（或其他已入的袋）承托才算。</p>
+  </section>
+</main>
+<footer>規則依據 Level Up Game Manual v2.1（2026-10-08）。</footer>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  // 計時器
+  var t = 60, running = false, raf, last, audio;
+  var el = document.getElementById('timer'), msg = document.getElementById('timer-msg');
+  function beep(f, ms) {
+    try { audio = audio || new (window.AudioContext || window.webkitAudioContext)(); var o = audio.createOscillator(), g = audio.createGain(); o.frequency.value = f; o.connect(g); g.connect(audio.destination); g.gain.value = .2; o.start(); o.stop(audio.currentTime + ms / 1000); } catch (e) {}
+  }
+  function show() {
+    el.textContent = t.toFixed(1);
+    el.className = 'big-timer' + (t <= 0 ? ' end' : (t <= 35 && t >= 25 ? ' switch' : ''));
+    msg.textContent = t <= 0 ? '時間到' : (t <= 35 && t >= 25 ? '換手！' : (t > 35 ? '第一位駕駛員' : '第二位駕駛員'));
+  }
+  function tick(ts) {
+    if (!running) return;
+    if (!last) last = ts;
+    var dt = (ts - last) / 1000; last = ts;
+    var before = t; t -= dt;
+    if (before > 35 && t <= 35) beep(660, 400);
+    if (before > 25 && t <= 25) beep(660, 400);
+    if (t <= 0) { t = 0; running = false; beep(440, 800); show(); return; }
+    show(); raf = requestAnimationFrame(tick);
+  }
+  document.getElementById('t-start').addEventListener('click', function () {
+    if (running) { running = false; this.textContent = '繼續'; return; }
+    if (t <= 0) t = 60;
+    running = true; last = null; this.textContent = '暫停'; beep(880, 200); raf = requestAnimationFrame(tick);
+  });
+  document.getElementById('t-reset').addEventListener('click', function () { running = false; t = 60; last = null; document.getElementById('t-start').textContent = '開始'; show(); });
+  show();
+
+  // 計分器
+  var goals = [['floor', 'Floor Goal', 1], ['L1', 'L1', 3], ['L2', 'L2', 6], ['L3', 'L3', 12], ['L4', 'L4（只黃袋）', 16]];
+  var cnt = {};
+  var rows = document.getElementById('rows');
+  rows.innerHTML = goals.map(function (g) {
+    cnt[g[0]] = 0;
+    return '<div class="score-row"><div>' + g[1] + ' <span class="pill">' + g[2] + ' 分</span></div><button data-g="' + g[0] + '" data-d="-1">−</button><div class="cnt" id="c-' + g[0] + '">0</div><button data-g="' + g[0] + '" data-d="1">＋</button></div>';
+  }).join('');
+  function total() {
+    var s = 0; goals.forEach(function (g) { s += cnt[g[0]] * g[2]; document.getElementById('c-' + g[0]).textContent = cnt[g[0]]; });
+    document.getElementById('total').textContent = s + ' 分';
+    return s;
+  }
+  rows.addEventListener('click', function (e) {
+    var g = e.target.getAttribute('data-g'); if (!g) return;
+    cnt[g] = Math.max(0, cnt[g] + parseInt(e.target.getAttribute('data-d'), 10)); total();
+  });
+  document.getElementById('s-reset').addEventListener('click', function () { goals.forEach(function (g) { cnt[g[0]] = 0; }); total(); });
+  document.getElementById('s-copy').addEventListener('click', function () {
+    var s = total();
+    VQ.copyText('Level Up 分數 ' + new Date().toLocaleString('zh-HK') + '\n' + goals.map(function (g) { return g[1] + ' ' + cnt[g[0]]; }).join('，') + '\n總分 ' + s, this);
+  });
+})();
+</script>
+</body>
+</html>
